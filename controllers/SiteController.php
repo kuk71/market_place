@@ -39,7 +39,11 @@ class SiteController extends Controller
     }
 
     public function actionTest() {
-        return 12345;
+        $posts = Yii::$app->db->createCommand('SHOW tables')
+            ->queryAll();
+
+        // print_r($posts);
+        return $posts;
     }
 
     /**
