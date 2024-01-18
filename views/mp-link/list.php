@@ -1,5 +1,5 @@
 <div id="app" v-cloak>
-    <button class="btn" @click="console.log(mpLinks)">Показать</button>
+    <button class="btn" @click="console.log(mpLinks[0].firstcolor)">Показать</button>
 
     <button class="btn btn-primary" @click="getLinkSecond()">Загрузить второй уровень соединения</button>
 

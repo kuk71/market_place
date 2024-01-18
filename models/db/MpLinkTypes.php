@@ -13,6 +13,49 @@ use Yii;
  */
 class MpLinkTypes extends \yii\db\ActiveRecord
 {
+
+    public static function getTypeLinkIdByMpId(int $userId, int $firstMpId, int $secondMpId)
+    {
+        return self::find()
+            ->where("
+                (mp_first_id = $firstMpId AND mp_second_id = $secondMpId)
+                 OR (mp_first_id = $secondMpId AND mp_second_id = $firstMpId)")
+            ->asArray()
+            ->all();
+    }
+
+    public static function getTypeLinkIdByProductId(int $userId, int $firstProductId, int $secondProductId)
+    {
+        $firstMpId = ProductDownloaded::getMpIdByProductId($userId, $firstProductId);
+        $secondMpId = ProductDownloaded::getMpIdByProductId($userId, $secondProductId);
+
+        if (count($firstMpId) === 0 || count($secondMpId) === 0) {
+            return [];
+        }
+
+
+        $firstMpId = (int)$firstMpId['mp_id'];
+        $secondMpId = (int)$secondMpId['mp_id'];
+
+        return self::find()
+            ->where("
+                (mp_first_id = $firstMpId AND mp_second_id = $secondMpId)
+                 OR (mp_first_id = $secondMpId AND mp_second_id = $firstMpId)")
+            ->asArray()
+            ->all();
+    }
+
+    public static function getMpIdByLink(int $linkTypeId)
+    {
+        $link = self::find()->where(['id' => $linkTypeId])->asArray()->all();
+
+        if (count($link) === 0) {
+            return false;
+        }
+
+        return ["mpFirstId" => (int)$link[0]['mp_first_id'], "mpSecondId" => (int)$link[0]['mp_second_id']];
+    }
+
     /**
      * {@inheritdoc}
      */

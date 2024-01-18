@@ -19,6 +19,19 @@ use Yii;
 class MpLinkCandidates extends \yii\db\ActiveRecord
 {
 
+
+
+    public static function addLink(int $userId, int $typeLinkId, int $firstProductId, int $secondProductId)
+    {
+        $query = "
+        INSERT INTO mp_link_candidates (user_id, mp_link_type_id, first_mp_product_id, second_mp_product_id) 
+                                VALUES ($userId,$typeLinkId, $firstProductId, $secondProductId)
+            ON CONFLICT (user_id, mp_link_type_id, first_mp_product_id, second_mp_product_id) DO UPDATE SET is_del = 0;
+        ";
+
+        Yii::$app->db->createCommand($query)->execute();
+    }
+
     public static function delLink(int $userId, int $linkId)
     {
         $query = "UPDATE mp_link_candidates SET is_del = 1 WHERE user_id = $userId AND id = $linkId";
@@ -29,7 +42,12 @@ class MpLinkCandidates extends \yii\db\ActiveRecord
     public static function createLinkProductFirst($userId, $LinkTypeId)
     {
         $products = self::getSimilarProductQuery($userId, $LinkTypeId);
-        $query = "INSERT IGNORE mp_link_candidates (user_id, mp_link_type_id, first_mp_product_id, second_mp_product_id) ($products)";
+        $query = "INSERT INTO 
+                    " . self::tableName() . " 
+                        (user_id, mp_link_type_id, first_mp_product_id, second_mp_product_id) 
+                        ($products)
+                        ON CONFLICT (user_id, mp_link_type_id, first_mp_product_id, second_mp_product_id) DO NOTHING";
+
         Yii::$app->db->createCommand($query)->execute();
     }
 
@@ -69,29 +87,29 @@ class MpLinkCandidates extends \yii\db\ActiveRecord
 
         $query = "
             SELECT
-                LC.id AS linkId,
-                FM.product_mp_id AS firstId,
-                FM.vendor_code AS firstVendorCode,
-                FM.name AS firstName,
-                FM.description AS firstDescription,
-                FM.kit AS firstSet,
-                FM.color AS firstColor,
-                FM.size_1_mm AS firstSize1mm,
-                FM.size_2_mm AS firstSize2mm,
-                FM.size_3_mm AS firstSize3mm,
-                FM.weight_gr AS firstWeightGr,
-                FM.img AS firstImg,
-                SM.product_mp_id AS secondId,
-                SM.vendor_code AS secondVendorCode,
-                SM.name AS secondName,
-                SM.description AS secondDescription,
-                SM.kit AS secondSet,
-                SM.color AS secondColor,
-                SM.size_1_mm AS secondSize1mm,
-                SM.size_2_mm AS secondSize2mm,
-                SM.size_3_mm AS secondSize3mm,
-                SM.weight_gr AS secondWeightGr,
-                SM.img AS secondImg
+                LC.id AS \"linkId\",
+                FM.product_mp_id AS \"firstId\",
+                FM.vendor_code AS \"firstVendorCode\",
+                FM.name AS \"firstName\",
+                FM.description AS \"firstDescription\",
+                FM.kit AS \"firstSet\",
+                FM.color AS \"firstColor\",
+                FM.size_1_mm AS \"firstSize1mm\",
+                FM.size_2_mm AS \"firstSize2mm\",
+                FM.size_3_mm AS \"firstSize3mm\",
+                FM.weight_gr AS \"firstWeightGr\",
+                FM.img AS \"firstImg\",
+                SM.product_mp_id AS \"secondId\",
+                SM.vendor_code AS \"secondVendorCode\",
+                SM.name AS \"secondName\",
+                SM.description AS \"secondDescription\",
+                SM.kit AS \"secondSet\",
+                SM.color AS \"secondColor\",
+                SM.size_1_mm AS \"secondSize1mm\",
+                SM.size_2_mm AS \"secondSize2mm\",
+                SM.size_3_mm AS \"secondSize3mm\",
+                SM.weight_gr AS \"secondWeightGr\",
+                SM.img AS \"secondImg\"
             FROM " . self::tableName() . " AS LC
                 JOIN " . ProductDownloaded::tableName() . " AS FM 
                     ON (LC.first_mp_product_id = FM.id AND LC.user_id = $userId AND LC.mp_link_type_id = $linkTypeId)
@@ -102,7 +120,6 @@ class MpLinkCandidates extends \yii\db\ActiveRecord
                 $whereLinkNum
             ORDER BY
                 FM.id
-            -- LIMIT 4
         ";
 
         return Yii::$app->db->createCommand($query)->queryAll();
@@ -143,7 +160,13 @@ class MpLinkCandidates extends \yii\db\ActiveRecord
                     )
         ";
 
-        $query = "INSERT IGNORE mp_link_candidates (mp_link_type_id, link_num, user_id, first_mp_product_id, second_mp_product_id) ($query)";
+        $query = "
+            INSERT INTO 
+                    mp_link_candidates 
+                        (mp_link_type_id, link_num, user_id, first_mp_product_id, second_mp_product_id) 
+                        ($query)
+            ON CONFLICT (user_id, mp_link_type_id, first_mp_product_id, second_mp_product_id) DO NOTHING            
+        ";
 
         return Yii::$app->db->createCommand($query)->execute();
     }

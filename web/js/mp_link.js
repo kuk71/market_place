@@ -60,7 +60,9 @@ const App = {
             })
 
             mp = await response.json()
+
             this.mpLinks = await mp.data
+
             await this.setColor()
         },
 

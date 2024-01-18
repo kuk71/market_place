@@ -41,10 +41,11 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
             </div>
         </div>
     </nav>
+    <hr style="border: 2px solid red; padding: 0" class="m-0">
 </header>
 
-<main id="main" class="flex-shrink-0" role="main">
-    <div class="container-fluid pt-3">
+<main id="main" class="flex-shrink-0 p-0 m-0" role="main">
+    <div class="container-fluid pt-0">
         <?php if (!empty($this->params['breadcrumbs'])): ?>
             <?= Breadcrumbs::widget(['links' => $this->params['breadcrumbs']]) ?>
         <?php endif ?>

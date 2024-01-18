@@ -2,6 +2,7 @@
 
 namespace app\models\db;
 
+use Exception;
 use Yii;
 
 /**
@@ -11,7 +12,7 @@ use Yii;
  * @property int $user_id
  * @property int $mp_id
  * @property int $product_mp_id ID товара присвоенные маркетплесом
- * @property string|null $vendor_code ID товара заданный продавцом в системе маркет плейса 
+ * @property string|null $vendor_code ID товара заданный продавцом в системе маркет плейса
  * @property string|null $name
  * @property string|null $description
  * @property string|null $kit
@@ -37,6 +38,114 @@ use Yii;
  */
 class ProductDownloaded extends \yii\db\ActiveRecord
 {
+
+    public static function getMpIdByProductId(int $userId, int $id) {
+        return self::find()
+            ->select('mp_id')
+            ->where(["user_id" => $userId, "id" => $id])
+            ->asArray()
+            ->one();
+    }
+
+    public static function getProductForLink(int $userId, int $linkTypeId, int $mpId, int $numLink)
+    {
+        $numProduct = "first_mp_product_id";
+        if ($numLink === 2){
+            $numProduct = "second_mp_product_id";
+        }
+
+        $query = "
+            SELECT DISTINCT ON (PD.id)
+                PD.id,
+                PD.mp_id,
+                PD.product_mp_id,
+                PD.vendor_code,
+                PD.name,
+                PD.description,
+                PD.kit,
+                PD.color,
+                PD.img,
+                PD.weight_gr,
+                PD.size_1_mm,
+                PD.size_2_mm,
+                PD.size_3_mm,
+                LC.$numProduct AS link_candidate
+            FROM
+                " . self::tableName() . " AS PD
+                LEFT JOIN
+                    " . MpLinkCandidates::tableName() . " AS LC
+                    ON (PD.id = LC.$numProduct AND LC.user_id = $userId AND LC.mp_link_type_id = $linkTypeId AND LC.is_del = 0)
+            WHERE
+                PD.user_id = $userId
+                AND PD.mp_id = $mpId
+            ORDER BY PD.id
+        ";
+
+        return Yii::$app->db->createCommand($query)->queryAll();
+    }
+
+    public static function getProductById(int $userId, int $productId)
+    {
+        return self::find()
+            ->select(["id",  "mp_id", "product_mp_id", "vendor_code", "name", "description", "kit", "color", "img", "weight_gr", "size_1_mm", "size_2_mm", "size_3_mm"])
+            ->where(["user_id" => $userId, "id" => $productId])
+            ->asArray()
+            ->all();
+    }
+
+    public static function getProductNotLink(int $userId, int $linkTypeId, int $mpId)
+    {
+        // получить id маркет плейсов из связи
+        $mpByLinkId = MpLinkTypes::getMpIdByLink($linkTypeId);
+        if (!$mpByLinkId) {
+            throw new Exception("No id link");
+        }
+
+        $mpProductId = "first_mp_product_id";
+
+        if ($mpByLinkId['mpSecondId'] === $mpId) {
+            $mpProductId = "second_mp_product_id";
+        }
+
+        // запрос на получение id товаров у которых есть пара
+        $productLinkId = "
+            SELECT 
+                $mpProductId
+            FROM
+                " . MpLinkCandidates::tableName() . "
+            WHERE
+                user_id = $userId
+                AND mp_link_type_id = $linkTypeId
+                AND is_del = 0
+        ";
+
+        // запрос на получение товара без пары
+        $query = '
+            SELECT
+                id,
+                product_mp_id,
+                vendor_code,
+                name,
+                description,
+                kit,
+                color,
+                img,
+                weight_gr,
+                size_1_mm,
+                size_2_mm,
+                size_3_mm
+            FROM
+                ' . self::tableName() . '
+            WHERE
+                user_id = ' . $userId . '
+                AND mp_id = ' . $mpId . '
+                AND id NOT IN (' . $productLinkId . ')
+       ';
+
+        return Yii::$app->db->createCommand($query)->queryAll();
+    }
+
+
     /**
      * {@inheritdoc}
      */
