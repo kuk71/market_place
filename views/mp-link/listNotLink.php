@@ -25,7 +25,7 @@
 
         <tr>
             <td rowspan="2">
-                <button class="btn btn-primary" @click="pairSearch(key, product.id)">Искать пару</button>
+                <button class="btn btn-primary" @click="pairSearch(product.id)">Искать пару</button>
             </td>
 
             <td colspan="10" v-html='this.getImg(product.img)'></td>

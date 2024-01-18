@@ -64,6 +64,8 @@ const App = {
             this.mpLinks = await mp.data
 
             await this.setColor()
+
+            console.log(this.mpLinks)
         },
 
         async getLinkSecond() {
@@ -99,18 +101,6 @@ const App = {
 
     mounted() {
         this.getLink()
-    },
-    computed: {
-        doubleCountComputed() {
-            return this.notes.length * 2
-        },
-    },
-    watch: {
-        inputValue(value) {
-            if (value.length > 5) {
-                this.inputValue = ''
-            }
-        }
     },
 }
 

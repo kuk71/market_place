@@ -2,13 +2,18 @@ const App = {
     data() {
         return {
             products: [],
+
+            linkType: null,
+            mpId: null,
         }
     },
 
     methods: {
-        pairSearch(key, productId) {
-            console.log(key)
+        pairSearch(productId) {
+            console.log(123)
+            window.location.href = "manual-binding?id=" + productId + "&linkType=" + this.linkType
         },
+
         async getProduct() {
             let products;
             const response = await fetch('/mp-link/get-not-link', {
@@ -17,8 +22,8 @@ const App = {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    linkType: 1,
-                    mpId: 1,
+                    linkType: this.linkType,
+                    mpId: this.mpId,
                 }),
             })
 
@@ -41,11 +46,11 @@ const App = {
         },
     },
 
-    computed: {},
-
-    watch: {},
-
     mounted() {
+        const urlParams = new URLSearchParams(window.location.search);
+        this.mpId = urlParams.get('mpId');
+        this.linkType = urlParams.get('linkType');
+
         this.getProduct()
     },
 

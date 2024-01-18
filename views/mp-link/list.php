@@ -1,7 +1,6 @@
 <div id="app" v-cloak>
-    <button class="btn" @click="console.log(mpLinks[0].firstcolor)">Показать</button>
-
-    <button class="btn btn-primary" @click="getLinkSecond()">Загрузить второй уровень соединения</button>
+    <button class="btn btn-primary" @click="getLinkSecond()">Загрузить второй уровень соединения</button> &nbsp;
+    <button class="btn btn-primary" onclick="window.location.href = 'mp-link/not-link?mpId=1&linkType=1'">Ручное связывание</button>
 
     <table class="table table-bordered border-dark">
         <thead>
