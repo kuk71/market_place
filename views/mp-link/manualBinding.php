@@ -28,7 +28,7 @@
         </tr>
 
         <tr>
-            <td>{{ productLink.product_mp_id }}</td>
+            <td>{{ productLink.id }} <br> {{ productLink.product_mp_id }}</td>
             <td>{{ productLink.color }}</td>
             <td>{{ productLink.vendor_code }}</td>
 
@@ -72,7 +72,7 @@
             </tr>
 
             <tr>
-                <td style="width: 100px">{{ product.product_mp_id }}</td>
+                <td style="width: 100px">{{ product.id }} <br> {{ product.product_mp_id }}</td>
 
 
 

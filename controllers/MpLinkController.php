@@ -22,19 +22,11 @@ class MpLinkController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::class,
-                'only' => ['logout'],
                 'rules' => [
                     [
-                        'actions' => ['logout'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
-                ],
-            ],
-            'verbs' => [
-                'class' => VerbFilter::class,
-                'actions' => [
-                    'logout' => ['post'],
                 ],
             ],
         ];
@@ -57,7 +49,7 @@ class MpLinkController extends Controller
 
     public function actionLinkProducts()
     {
-        $userId = 2;
+        $userId = Yii::$app->user->id;
         $response['success'] = true;
 
         $request = Yii::$app->getRequest()->bodyParams;
@@ -112,7 +104,7 @@ class MpLinkController extends Controller
 
     public function actionGetManualBinding()
     {
-        $userId = 2;
+        $userId = Yii::$app->user->id;
 
         $request = Yii::$app->getRequest()->bodyParams;
 
@@ -169,7 +161,7 @@ class MpLinkController extends Controller
 
     public function actionGetNotLink()
     {
-        $userId = 2;
+        $userId = Yii::$app->user->id;
 
         $request = Yii::$app->getRequest()->bodyParams;
         if (!isset($request['mpId']) || !isset($request['linkType'])) {
@@ -200,7 +192,7 @@ class MpLinkController extends Controller
     {
         $request = Yii::$app->getRequest()->bodyParams;
 
-        $userId = 2;
+        $userId = Yii::$app->user->id;
         $linkNum = 0;
 
         $request['linkType'] = 1;
@@ -223,7 +215,7 @@ class MpLinkController extends Controller
 
     public function actionGetSecond()
     {
-        $userId = 2;
+        $userId = Yii::$app->user->id;
         $linkNum = 2;
 
         $request = Yii::$app->getRequest()->bodyParams;
@@ -255,7 +247,7 @@ class MpLinkController extends Controller
 
     public function actionDelLink()
     {
-        $userId = 2;
+        $userId = Yii::$app->user->id;
 
         $request = Yii::$app->getRequest()->bodyParams;
 
