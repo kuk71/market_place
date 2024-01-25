@@ -193,9 +193,7 @@ class MpLinkController extends Controller
         $request = Yii::$app->getRequest()->bodyParams;
 
         $userId = Yii::$app->user->id;
-        $linkNum = 0;
-
-        $request['linkType'] = 1;
+        $linkNum = 0; // порядковый номер соединения
 
         $response['success'] = true;
 
@@ -206,6 +204,13 @@ class MpLinkController extends Controller
         }
 
         $linkTypeId = (int)$request['linkType'];
+
+        if (isset($request['delLink']) && $request['delLink'] === true) {
+            // удалить ранее созданне соединения
+            MpLinkCandidates::deleteAll(['user_id' => $userId, 'mp_link_type_id' => $linkTypeId]);
+        }
+
+        // exit;
 
         MpLinkCandidates::createLinkProductFirst($userId, $linkTypeId);
         $response['data'] = MpLinkCandidates::getLinkProduct($userId, $linkTypeId, $linkNum);

@@ -47,7 +47,7 @@ const App = {
         },
 
 
-        async getLink() {
+        async getLink(delLink) {
             let mp;
             const response = await fetch('/mp-link/get', {
                 method: 'POST',
@@ -55,7 +55,8 @@ const App = {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    linkType: 1
+                    linkType: 1,
+                    delLink: delLink
                 }),
             })
 
@@ -65,7 +66,7 @@ const App = {
 
             await this.setColor()
 
-            console.log(this.mpLinks)
+            // console.log(this.mpLinks)
         },
 
         async getLinkSecond() {
@@ -100,7 +101,7 @@ const App = {
     },
 
     mounted() {
-        this.getLink()
+        this.getLink(false)
     },
 }
 
