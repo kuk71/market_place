@@ -75,6 +75,7 @@ class Wb
             $weight_unit = "";
             $set = "";
 
+            // TODO заменить на константы
             foreach ($pP->characteristics as $char) {
                 switch ($char->id) {
                     case(88952):

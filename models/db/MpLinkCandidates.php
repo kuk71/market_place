@@ -23,35 +23,53 @@ class MpLinkCandidates extends \yii\db\ActiveRecord
 
     public static function addLink(int $userId, int $typeLinkId, int $firstProductId, int $secondProductId)
     {
-        $query = "
+        $query = '
         INSERT INTO mp_link_candidates (user_id, mp_link_type_id, first_mp_product_id, second_mp_product_id) 
-                                VALUES ($userId,$typeLinkId, $firstProductId, $secondProductId)
-            ON CONFLICT (user_id, mp_link_type_id, first_mp_product_id, second_mp_product_id) DO UPDATE SET is_del = 0;
-        ";
+                                VALUES (:userId, :typeLinkId, :firstProductId, :secondProductId)
+            ON CONFLICT (user_id, mp_link_type_id, first_mp_product_id, second_mp_product_id) 
+            DO UPDATE SET is_del = 0;
+        ';
 
-        Yii::$app->db->createCommand($query)->execute();
+        $params = [
+            ":userId" => $userId,
+            ":typeLinkId" => $typeLinkId,
+            ":firstProductId" => $firstProductId,
+            ":secondProductId" => $secondProductId,
+        ];
+
+        Yii::$app->db->createCommand($query)->bindValues($params)->execute();
     }
 
     public static function delLink(int $userId, int $linkId)
     {
-        $query = "UPDATE mp_link_candidates SET is_del = 1 WHERE user_id = $userId AND id = $linkId";
+        $query = "UPDATE mp_link_candidates SET is_del = 1 WHERE user_id = :userId AND id = :linkId";
 
-        return Yii::$app->db->createCommand($query)->execute();
+        $params = [
+            ":userId" => $userId,
+            ":linkId" => $linkId,
+        ];
+
+        return Yii::$app->db->createCommand($query)->bindValues($params)->execute();
     }
 
-    public static function createLinkProductFirst($userId, $LinkTypeId)
+    public static function createLinkProductFirst(int $userId, int $linkTypeId)
     {
-        $products = self::getSimilarProductQuery($userId, $LinkTypeId);
+        $products = self::getSimilarProductQuery();
         $query = "INSERT INTO 
                     " . self::tableName() . " 
                         (user_id, mp_link_type_id, first_mp_product_id, second_mp_product_id) 
                         ($products)
                         ON CONFLICT (user_id, mp_link_type_id, first_mp_product_id, second_mp_product_id) DO NOTHING";
 
-        Yii::$app->db->createCommand($query)->execute();
+        $params = [
+            ":userId" => $userId,
+            ":linkTypeId" => $linkTypeId,
+        ];
+
+        Yii::$app->db->createCommand($query)->bindValues($params)->execute();
     }
 
-    public static function getSimilarProductQuery(int $userId, int $linkTypeId)
+    public static function getSimilarProductQuery()
     {
         return "
             SELECT
@@ -61,9 +79,9 @@ class MpLinkCandidates extends \yii\db\ActiveRecord
                 L.second_mp_product_id
             FROM " . ProductSimilar::tableName() . " AS L
                 JOIN " . ProductDownloaded::tableName() . " AS F 
-                    ON (L.first_mp_product_id = F.id AND L.user_id = $userId AND L.mp_link_type_id = $linkTypeId)
+                    ON (L.first_mp_product_id = F.id AND L.user_id = :userId AND L.mp_link_type_id = :linkTypeId)
                 JOIN " . ProductDownloaded::tableName() . " AS S
-                    ON (L.second_mp_product_id = S.id AND L.user_id = $userId AND L.mp_link_type_id = $linkTypeId)
+                    ON (L.second_mp_product_id = S.id AND L.user_id = :userId AND L.mp_link_type_id = :linkTypeId)
             WHERE 
                 (
                     L.color = 1 AND 

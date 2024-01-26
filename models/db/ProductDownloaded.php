@@ -47,8 +47,21 @@ class ProductDownloaded extends \yii\db\ActiveRecord
             ->one();
     }
 
+    /**
+     *
+     * Выбирает список потенциально возможных для связи товаров для передачи в форму ручного связывания
+     * @param int $userId
+     * @param int $linkTypeId
+     * @param int $mpId
+     * @param int $numLink
+     * @return array|\yii\db\DataReader
+     * @throws \yii\db\Exception
+     */
     public static function getProductForLink(int $userId, int $linkTypeId, int $mpId, int $numLink)
     {
+        // $numProduct - определяет по какому из полей связывать таблицы Списка товаров и Кандидатов на соединение
+        // $numLink - определяет какую позицию в таблице связей mp_link_type занимает маркет плейс
+        // товары которого выбираются для связи
         $numProduct = "first_mp_product_id";
         if ($numLink === 2){
             $numProduct = "second_mp_product_id";

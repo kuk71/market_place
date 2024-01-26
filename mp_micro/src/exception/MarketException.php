@@ -13,6 +13,8 @@ class MarketException extends Exception
 
     private function getMessageText(string $type, int $code, string $addition = "")
     {
+        // TODO - заменить на константы
+
         $message = [
             'sys' => [
                 0 => 'Register_argc_argv is disabled',

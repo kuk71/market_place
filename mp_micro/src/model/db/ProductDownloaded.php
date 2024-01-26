@@ -9,6 +9,30 @@ class ProductDownloaded
 {
     const TBL = 'product_downloaded';
 
+    public static function createQueryForFindSimilarProduct(int $userId, string $field, int $mpFirstId, int $mpSecondId)
+    {
+        $queryFirst = "SELECT id, $field FROM " . ProductDownloaded::TBL . " WHERE user_id = $userId AND mp_id = $mpFirstId";
+        $querySecond = "SELECT id, $field FROM " . ProductDownloaded::TBL . " WHERE user_id = $userId AND mp_id = $mpSecondId";
+
+        $on = "F.$field = S.$field";
+
+        if ($field !== "color") {
+            $on = "F.$field BETWEEN (S.$field - (F.$field / 20)) AND (S.$field + (F.$field / 20))";
+        }
+
+        $query = "
+            SELECT 
+                F.id AS first_mp_product_id,
+                S.id AS second_mp_product_id
+            FROM 
+                ($queryFirst) AS F 
+                JOIN ($querySecond) AS S
+                        ON ($on)
+        ";
+
+        return $query;
+    }
+
     public static function getColors()
     {
         $query = "SELECT DISTINCT color FROM " . self::TBL . " WHERE color <> ''";

@@ -45,51 +45,10 @@ class SimilarProduct
 
     private static function createLink(string $field, int $mpFirstId, int $mpSecondId, int $linkTypeId): void
     {
-        $query = self::getQuerySelect($field, $mpFirstId, $mpSecondId);
+        $query = ProductDownloaded::createQueryForFindSimilarProduct(App::getUserId(), $field, $mpFirstId, $mpSecondId);
 
         PS::createLink($query, $field, App::getUserId(), $linkTypeId);
     }
-
-    private static function getQuerySelect($field, int $mpFirstId, int $mpSecondId)
-    {
-        $queryFirst = "SELECT id, $field FROM " . ProductDownloaded::TBL . " WHERE user_id = " . App::getUserId() . " AND mp_id = $mpFirstId";
-        $querySecond = "SELECT id, $field FROM " . ProductDownloaded::TBL . " WHERE user_id = " . App::getUserId() . " AND mp_id = $mpSecondId";
-
-        $on = "F.$field = S.$field";
-
-        if ($field !== "color") {
-            $on = "F.$field BETWEEN (S.$field - (F.$field / 20)) AND (S.$field + (F.$field / 20))";
-        }
-
-        $query = "
-            SELECT 
-                F.id AS first_mp_product_id,
-                S.id AS second_mp_product_id
-            FROM 
-                ($queryFirst) AS F 
-                JOIN ($querySecond) AS S
-                        ON ($on)
-        ";
-
-        return $query;
-    }
-
-    // создает записи в таблице кандидатов связей товаров для всех возможных сочетаний маркет плейсов
-//    public static function createLinkAll()
-//    {
-//        $products = spWbOzon::getQueryLinkProductId();
-//        $query = "INSERT IGNORE mp_link_candidates (mp_link_type_id, first_mp_product_id, second_mp_product_id) ($products)";
-//        App::db()->prepare($query)->execute();
-//
-//        $products = spWbYandex::getQueryLinkProductId();
-//        $query = "INSERT IGNORE mp_link_candidates (mp_link_type_id, first_mp_product_id, second_mp_product_id) ($products)";
-//        App::db()->prepare($query)->execute();
-//
-//        $products = spOzonYandex::getQueryLinkProductId();
-//        $query = "INSERT IGNORE mp_link_candidates (mp_link_type_id, first_mp_product_id, second_mp_product_id) ($products)";
-//        App::db()->prepare($query)->execute();
-//    }
-
 
     private static function similarText(int $linkTypeId)
     {

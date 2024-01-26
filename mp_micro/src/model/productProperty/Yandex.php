@@ -46,41 +46,72 @@ class Yandex
     private static function colorFind(int $mpId)
     {
         $notNormalizeItems = PD::getNotNormalize(App::getUserId(), $mpId);
+
+        // получает список возможных вариантов цвета
         $colors = PD::getColors();
 
+        // поля таблицы со списком товара в которых будет искаться цвет
+        // поля введены по приритету. Т.е. при нахождении цвета в одном из полей, продолжать поиск не нужно
         $fields = ['vendor_code', 'name', 'description'];
 
-        foreach ($notNormalizeItems as $prod) {
-            $normal[$prod['id']]['color'] = NULL;
-
-            foreach ($fields as $field) {
-                $findColor = [];
-
-                foreach ($colors as $color) {
-                    $position = mb_stripos($prod[$field], $color);
-
-                    if ($position !== false) {
-                        $findColor[$color] = $position;
-                    }
-                }
-
-                if (count($findColor) !== 0) {
-                    asort($findColor);
-                    $normal[$prod['id']]['color'] = array_key_first($findColor);
-                    break;
-                }
-            }
+        // проход по всем товарам
+        foreach ($notNormalizeItems as $product) {
+            // проход по всем полям в которых ищется цвет
+            $normal[$product['id']] = self::findColorsInFields($product, $fields, $colors);
         }
 
         $color = [];
         foreach ($normal as $key => $item) {
             $color[] = [
                 "id" => $key,
-                "color" => $item['color']
+                "color" => $item,
             ];
         }
 
         return $color;
+    }
+
+    private static function findColorsInFields(array $prod, array $fields, array $colors): string|null
+    {
+        $color = NULL;
+
+        foreach ($fields as $field) {
+            // проход по всем возможным цветам
+            $findColor = self::getColorsFirstPosition($colors, $prod[$field]);
+
+            // выбор одного из найденных цветов по признаку его первого вхождения в поле
+            if (count($findColor) !== 0) {
+                asort($findColor);
+                $color = array_key_first($findColor);
+
+                // цвет найден - поиск в других полях не нужен
+                break;
+            }
+        }
+
+        return $color;
+    }
+
+    /**
+     * Находит первые позиции искомого цвета в поле
+     *
+     * @param array $colors - список цветов для поиска
+     * @param $haystack - строка в которой ищется цвет
+     * @return array - $findColor['Цвет'] = Первая позиция в поле
+     */
+    private static function getColorsFirstPosition(array $colors, $haystack): array
+    {
+        $findColor = [];
+
+        foreach ($colors as $color) {
+            $position = mb_stripos($haystack, $color);
+
+            if ($position !== false) {
+                $findColor[$color] = $position;
+            }
+        }
+
+        return $findColor;
     }
 
     private static function convertToArrayProductProperty($property, int $mpId)

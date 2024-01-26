@@ -83,17 +83,14 @@ class Wb
     private static function getCurlAtrProductProperty(
         string $key, string $url, string $method, int $limit, int $nmID, string $updatedAt)
     {
-        $cursor = "{
-            \"limit\": $limit
-        }";
+        $cursor["limit"] = $limit;
 
         if ($updatedAt !== "") {
-            $cursor = "{
-            \"updatedAt\": \"$updatedAt\",
-                \"nmID\": $nmID,
-                \"limit\": $limit
-            }";
+            $cursor["updatedAt"] = $updatedAt;
+            $cursor["nmID"] = $nmID;
         }
+
+        $cursor = json_encode($cursor);
 
         return array(
             CURLOPT_URL => $url,
