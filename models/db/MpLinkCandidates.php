@@ -92,7 +92,7 @@ class MpLinkCandidates extends \yii\db\ActiveRecord
                 OR (L.color = 1 AND (word_equal_description + word_equal_name + word_equal_vendor_code + word_equal_kit) > 250 AND (similar_description + similar_name + similar_vendor_code + similar_kit) > 230)
                 OR ((word_equal_description + word_equal_name + word_equal_vendor_code + word_equal_kit) > 300 AND word_equal_vendor_code = 100  AND number_equal_fields > 0)
                 OR ((word_equal_description + word_equal_name + word_equal_vendor_code + word_equal_kit) > 370 AND word_equal_name = 100  AND (word_equal_description + word_equal_name + word_equal_vendor_code + word_equal_kit) > 250 AND number_equal_fields > 0)
-            ORDER BY L.first_mp_product_id ASC";
+            ORDER BY L.first_mp_product_id";
     }
 
     public static function getLinkProduct(int $userId, int $linkTypeId, int $linkNum)
