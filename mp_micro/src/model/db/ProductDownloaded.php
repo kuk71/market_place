@@ -2,7 +2,6 @@
 namespace market\model\db;
 
 use market\app\App;
-use market\model\db\SimilarProductWbOzon AS sp;
 use PDO;
 
 class ProductDownloaded
