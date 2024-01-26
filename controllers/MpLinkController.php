@@ -9,7 +9,6 @@ use Exception;
 use Yii;
 use yii\filters\AccessControl;
 use yii\rest\Controller;
-use yii\filters\VerbFilter;
 
 
 class MpLinkController extends Controller

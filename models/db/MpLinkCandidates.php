@@ -23,12 +23,11 @@ class MpLinkCandidates extends \yii\db\ActiveRecord
 
     public static function addLink(int $userId, int $typeLinkId, int $firstProductId, int $secondProductId)
     {
-        $query = '
-        INSERT INTO mp_link_candidates (user_id, mp_link_type_id, first_mp_product_id, second_mp_product_id) 
+        $query = "
+        INSERT INTO " . self::tableName() . " (user_id, mp_link_type_id, first_mp_product_id, second_mp_product_id) 
                                 VALUES (:userId, :typeLinkId, :firstProductId, :secondProductId)
             ON CONFLICT (user_id, mp_link_type_id, first_mp_product_id, second_mp_product_id) 
-            DO UPDATE SET is_del = 0;
-        ';
+            DO UPDATE SET is_del = 0;";
 
         $params = [
             ":userId" => $userId,
@@ -42,7 +41,7 @@ class MpLinkCandidates extends \yii\db\ActiveRecord
 
     public static function delLink(int $userId, int $linkId)
     {
-        $query = "UPDATE mp_link_candidates SET is_del = 1 WHERE user_id = :userId AND id = :linkId";
+        $query = "UPDATE " . self::tableName() . " SET is_del = 1 WHERE user_id = :userId AND id = :linkId";
 
         $params = [
             ":userId" => $userId,
