@@ -106,6 +106,7 @@ class MpLinkCandidates extends \yii\db\ActiveRecord
             SELECT
                 LC.id AS \"linkId\",
                 FM.product_mp_id AS \"firstId\",
+                FMP.name AS \"firstMpName\",
                 FM.vendor_code AS \"firstVendorCode\",
                 FM.name AS \"firstName\",
                 FM.description AS \"firstDescription\",
@@ -117,6 +118,7 @@ class MpLinkCandidates extends \yii\db\ActiveRecord
                 FM.weight_gr AS \"firstWeightGr\",
                 FM.img AS \"firstImg\",
                 SM.product_mp_id AS \"secondId\",
+                SMP.name AS \"secondMpName\",
                 SM.vendor_code AS \"secondVendorCode\",
                 SM.name AS \"secondName\",
                 SM.description AS \"secondDescription\",
@@ -132,6 +134,11 @@ class MpLinkCandidates extends \yii\db\ActiveRecord
                     ON (LC.first_mp_product_id = FM.id AND LC.user_id = $userId AND LC.mp_link_type_id = $linkTypeId)
                 JOIN " . ProductDownloaded::tableName() . " AS SM
                     ON (LC.second_mp_product_id = SM.id AND LC.user_id = $userId AND LC.mp_link_type_id = $linkTypeId)
+                JOIN " . MP::tableName() . " FMP
+                    ON (FMP.id = FM.mp_id)
+                JOIN " . MP::tableName() . " SMP
+                    ON (SMP.id = SM.mp_id)
+                    
             WHERE
                 is_del = 0
                 $whereLinkNum

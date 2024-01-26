@@ -33,16 +33,18 @@
                 <button class="btn btn-primary" @click="delLink(key, mpLink.linkId)">Удалить</button>
             </td>
 
-            <td colspan="10" v-html='this.getImg(mpLink.firstImg)'></td>
+            <td><b>{{mpLink.firstMpName}}</b></td>
+            <td colspan="9" v-html='this.getImg(mpLink.firstImg)'></td>
 
         </tr>
 
         <tr>
-            <td colspan="11" v-html='this.getImg(mpLink.secondImg)'></td>
+            <td><b>{{mpLink.secondMpName}}</b></td>
+            <td colspan="10" v-html='this.getImg(mpLink.secondImg)'></td>
         </tr>
 
         <tr>
-            <td>{{ mpLink.firstId }}</td>
+            <td><b>{{mpLink.firstMpName}}</b> <br> {{ mpLink.firstId }}</td>
             <td>{{ mpLink.firstColor }}</td>
             <td>{{ mpLink.firstVendorCode }}</td>
 
@@ -61,7 +63,7 @@
         </tr>
 
         <tr>
-            <td>{{ mpLink.secondId }}</td>
+            <td><b>{{mpLink.secondMpName}}</b> <br> {{ mpLink.secondId }}</td>
             <td>{{ mpLink.secondColor }}</td>
             <td>{{ mpLink.secondVendorCode }}</td>
             <td>
