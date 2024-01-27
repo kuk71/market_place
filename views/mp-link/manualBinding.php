@@ -26,7 +26,7 @@
             </tr>
             </thead>
 
-            </tbody>
+            <tbody>
             <tr>
                 <td style="width: 135px" rowspan="2">
                     <button class="btn btn-primary" @click="changeShowAll()">{{ showAllButton }}</button>
