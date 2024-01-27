@@ -4,6 +4,7 @@ const App = {
             mpLinks: [],
             color: ["table-success", "table-info",],
             lastFirstId: 0,
+            topic: "",
         }
     },
     methods: {
@@ -49,6 +50,11 @@ const App = {
 
         async getLink(delLink = false) {
             let mp;
+
+            this.mpLinks = []
+
+            this.topic = "Первый уровень соединения"
+
             const response = await fetch('/mp-link/get', {
                 method: 'POST',
                 headers: {
@@ -71,19 +77,27 @@ const App = {
 
         async getLinkSecond() {
             let mp;
+
+            this.mpLinks = []
+
+            this.topic = "Второй уровень соединения"
+
             const response = await fetch('/mp-link/get-second', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    linkType: 1
+                    linkType: 1,
+                    delLink: false
                 }),
             })
 
             mp = await response.json()
             this.mpLinks = await mp.data
             await this.setColor()
+
+            window.scrollTo(0, 0);
             // await console.log(mp)
         },
 

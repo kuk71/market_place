@@ -1,7 +1,14 @@
 <div id="app" v-cloak>
-    <button class="btn btn-primary" @click="getLinkSecond()">Загрузить второй уровень соединения</button> &nbsp;
-    <button class="btn btn-primary" onclick="window.location.href = 'mp-link/not-link?mpId=1&linkType=1'">Ручное связывание</button> &nbsp;
+
+    <h1>{{ topic }}</h1>
+
+    <button class="btn btn-primary"  onclick="window.location.href = '/mp-link'">Первый уровень</button> &nbsp;
+    <button class="btn btn-primary" @click="getLinkSecond()">Второй уровень соединения</button> &nbsp;
+    <button class="btn btn-primary" onclick="window.location.href = 'mp-link/not-link?mpId=1&linkType=1'">Ручное
+        связывание
+    </button> &nbsp;
     <button class="btn btn-primary" @click="getLink(true)">Начать заново</button>
+    <br><br>
 
     <table class="table table-bordered border-dark">
         <thead>
@@ -54,7 +61,9 @@
             <td>
                 <div style="max-height: 100px; overflow: auto">{{ mpLink.firstDescription }}</div>
             </td>
-            <td><div style="max-height: 100px; overflow: auto">{{ mpLink.firstSet }}</div></td>
+            <td>
+                <div style="max-height: 100px; overflow: auto">{{ mpLink.firstSet }}</div>
+            </td>
 
             <td>{{ mpLink.firstSize1mm }}</td>
             <td>{{ mpLink.firstSize2mm }}</td>
@@ -72,7 +81,9 @@
             <td>
                 <div style="max-height: 100px; overflow: auto">{{ mpLink.secondDescription }}</div>
             </td>
-            <td><div style="max-height: 100px; overflow: auto">{{ mpLink.firstSet }}</div></td>
+            <td>
+                <div style="max-height: 100px; overflow: auto">{{ mpLink.firstSet }}</div>
+            </td>
 
             <td>{{ mpLink.secondSize1mm }}</td>
             <td>{{ mpLink.secondSize2mm }}</td>
@@ -83,7 +94,15 @@
         </tbody>
     </table>
 
+    <button class="btn btn-primary"  onclick="window.location.href = '/mp-link'">Первый уровень</button> &nbsp;
+    <button class="btn btn-primary" @click="getLinkSecond()">Второй уровень соединения</button> &nbsp;
+    <button class="btn btn-primary" onclick="window.location.href = 'mp-link/not-link?mpId=1&linkType=1'">Ручное
+        связывание
+    </button> &nbsp;
+    <button class="btn btn-primary" @click="getLink(true)">Начать заново</button>
+    <br><br>
 </div>
+
 
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 <script src="/js/mp_link.js"></script>

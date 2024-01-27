@@ -1,4 +1,11 @@
 <div id="app" v-cloak>
+
+    <h1>Ручное связывание</h1>
+
+    <button class="btn btn-primary"  onclick="window.location.href = '/mp-link'">Автоматическое связывание</button>
+
+    <br><br>
+
     <table class="table table-bordered border-dark">
         <thead>
         <tr>
