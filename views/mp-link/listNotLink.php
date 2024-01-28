@@ -31,7 +31,7 @@
         >
 
 
-        <tr :class="{'bg-info': product['noLink']}">
+        <tr :class="{'table-secondary': product['noLink']}">
             <td rowspan="2">
                 <button class="btn btn-primary" @click="linkSearch(product.id)">Искать пару</button>
                 <br><br>
@@ -44,7 +44,7 @@
 
         </tr>
 
-        <tr :class="{'bg-info': product['noLink']}">
+        <tr :class="{'table-secondary': product['noLink']}">
             <td>{{ product.product_mp_id }}</td>
             <td>{{ product.color }}</td>
             <td>{{ product.vendor_code }}</td>
