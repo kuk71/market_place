@@ -9,9 +9,28 @@ const App = {
     },
 
     methods: {
-        pairSearch(productId) {
-            console.log(123)
+        linkSearch(productId) {
             window.location.href = "manual-binding?id=" + productId + "&linkType=" + this.linkType
+        },
+
+        async noLink(key) {
+            this.products[key]['noLink'] = !this.products[key]['noLink']
+
+            const response = await fetch('/mp-link/no-link', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    linkType: this.linkType,
+                    productId: this.products[key]['id'],
+                    noLink: this.products[key]['noLink'],
+                }),
+            })
+
+            const res = await response.json()
+
+            await console.log(res)
         },
 
         async getProduct() {

@@ -37,6 +37,10 @@ class MpLinkCandidates extends \yii\db\ActiveRecord
         ];
 
         Yii::$app->db->createCommand($query)->bindValues($params)->execute();
+
+        // удалить информацию о связанных товарах из таблицы с не связанными товарами
+        MpLinkNo::delNoLink($userId, $typeLinkId, $firstProductId);
+        MpLinkNo::delNoLink($userId, $typeLinkId, $secondProductId);
     }
 
     public static function delLink(int $userId, int $linkId)

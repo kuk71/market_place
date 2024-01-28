@@ -30,16 +30,21 @@
                 :key="key"
         >
 
-        <tr>
+
+        <tr :class="{'bg-info': product['noLink']}">
             <td rowspan="2">
-                <button class="btn btn-primary" @click="pairSearch(product.id)">Искать пару</button>
+                <button class="btn btn-primary" @click="linkSearch(product.id)">Искать пару</button>
+                <br><br>
+                <button class="btn btn-secondary" @click="noLink(key)"
+                >{{ product['noLink'] ? 'Снять нет пары' : 'Отметить: нет пары'}}
+                </button>
             </td>
 
             <td colspan="10" v-html='this.getImg(product.img)'></td>
 
         </tr>
 
-        <tr>
+        <tr :class="{'bg-info': product['noLink']}">
             <td>{{ product.product_mp_id }}</td>
             <td>{{ product.color }}</td>
             <td>{{ product.vendor_code }}</td>
@@ -59,6 +64,7 @@
             <td>{{ product.size_3_mm }}</td>
             <td>{{ product.weight_gr }}</td>
         </tr>
+
         </tbody>
     </table>
 </div>

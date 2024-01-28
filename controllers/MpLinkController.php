@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\db\MpLinkCandidates;
+use app\models\db\MpLinkNo;
 use app\models\db\MpLinkTypes;
 use app\models\db\ProductDownloaded;
 use Exception;
@@ -46,6 +47,32 @@ class MpLinkController extends Controller
         return $this->render('manualBinding');
     }
 
+    public function actionNoLink()
+    {
+        $userId = Yii::$app->user->id;
+        $response['success'] = true;
+
+        $request = Yii::$app->getRequest()->bodyParams;
+
+        try {
+            if (!(isset($request['linkType']) && isset($request['productId']) && isset($request['noLink']))) {
+                throw new Exception();
+            }
+
+            $linkTypeId = (int)$request['linkType'];
+            $productId = (int)$request['productId'];
+            $noLink = (bool)$request['noLink'];
+
+            MpLinkNo::setNoLink($userId, $linkTypeId, $productId, $noLink);
+
+        } catch (Exception $e) {
+            $response['success'] = false;
+        }
+
+        return $this->asJson($response);
+    }
+
+
     public function actionLinkProducts()
     {
         $userId = Yii::$app->user->id;
@@ -71,8 +98,8 @@ class MpLinkController extends Controller
                 throw new Exception();
             }
 
-            $firstMpId = (int) $firstMpId['mp_id'];
-            $secondMpId = (int) $secondMpId['mp_id'];
+            $firstMpId = (int)$firstMpId['mp_id'];
+            $secondMpId = (int)$secondMpId['mp_id'];
 
             // получить информацию о типе связи между маркет плейсами
             $typeLink = MpLinkTypes::getTypeLinkIdByMpId($userId, $firstMpId, $secondMpId);
@@ -81,7 +108,7 @@ class MpLinkController extends Controller
                 throw new Exception();
             }
 
-            $typeLinkId = (int) $typeLink[0]['id'];
+            $typeLinkId = (int)$typeLink[0]['id'];
 
             // привести значение переменных продуктов и маркет плейсов
             // в соответствие с типом связи в котором они участвуют
@@ -101,7 +128,8 @@ class MpLinkController extends Controller
         return $this->asJson($response);
     }
 
-    public function actionGetManualBinding()
+    public
+    function actionGetManualBinding()
     {
         $userId = Yii::$app->user->id;
 
@@ -158,7 +186,8 @@ class MpLinkController extends Controller
     }
 
 
-    public function actionGetNotLink()
+    public
+    function actionGetNotLink()
     {
         $userId = Yii::$app->user->id;
 
@@ -187,7 +216,8 @@ class MpLinkController extends Controller
     }
 
 
-    public function actionGet()
+    public
+    function actionGet()
     {
         $request = Yii::$app->getRequest()->bodyParams;
 
@@ -217,7 +247,8 @@ class MpLinkController extends Controller
         return $this->asJson($response);
     }
 
-    public function actionGetSecond()
+    public
+    function actionGetSecond()
     {
         $userId = Yii::$app->user->id;
         $linkNum = 2;
@@ -249,7 +280,8 @@ class MpLinkController extends Controller
         return $this->asJson($response);
     }
 
-    public function actionDelLink()
+    public
+    function actionDelLink()
     {
         $userId = Yii::$app->user->id;
 
