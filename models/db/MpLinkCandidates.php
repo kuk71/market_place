@@ -102,7 +102,7 @@ class MpLinkCandidates extends \yii\db\ActiveRecord
     public static function getLinkProduct(int $userId, int $linkTypeId, int $linkNum)
     {
         $whereLinkNum = "AND link_num = $linkNum";
-        if ($linkNum === 0) {
+        if ($linkNum === 1) {
             $whereLinkNum = "";
         }
 
@@ -110,6 +110,7 @@ class MpLinkCandidates extends \yii\db\ActiveRecord
             SELECT
                 LC.id AS \"linkId\",
                 FM.product_mp_id AS \"firstId\",
+                FMP.id AS \"firstMpId\",
                 FMP.name AS \"firstMpName\",
                 FM.vendor_code AS \"firstVendorCode\",
                 FM.name AS \"firstName\",
@@ -122,6 +123,7 @@ class MpLinkCandidates extends \yii\db\ActiveRecord
                 FM.weight_gr AS \"firstWeightGr\",
                 FM.img AS \"firstImg\",
                 SM.product_mp_id AS \"secondId\",
+                SMP.id AS \"secondMpId\",
                 SMP.name AS \"secondMpName\",
                 SM.vendor_code AS \"secondVendorCode\",
                 SM.name AS \"secondName\",
@@ -149,6 +151,8 @@ class MpLinkCandidates extends \yii\db\ActiveRecord
             ORDER BY
                 FM.id
         ";
+
+
 
         return Yii::$app->db->createCommand($query)->queryAll();
     }

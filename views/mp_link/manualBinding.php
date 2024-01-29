@@ -2,7 +2,7 @@
 
     <h1>Ручное связывание</h1>
 
-    <button class="btn btn-primary"  onclick="window.location.href = 'not-link?mpId=1&linkType=1'">Вернуться к не связанным товарам</button>
+    <button class="btn btn-primary"  @click="hrefToManual()">Вернуться к не связанным товарам</button>
 
 
     <br><br>
@@ -94,7 +94,7 @@
                 </td>
 
                 <td style="width: 200px">
-                    <div style="max-height: 180px; overflow: auto">{{ product.name }}</div>
+                    <div style="max-height: 100px; overflow: auto">{{ product.name }}</div>
                 </td>
                 <td>
                     <div style="max-height: 100px; overflow: auto">{{ product.description }}</div>
@@ -114,4 +114,4 @@
 </div>
 
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-<script src="/js/manual_binding.js"></script>
+<script src="/js/mp_link/manual_binding.js"></script>

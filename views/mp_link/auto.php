@@ -2,11 +2,10 @@
 
     <h1>{{ topic }}</h1>
 
-    <button class="btn btn-primary"  onclick="window.location.href = '/mp-link'">Первый уровень</button> &nbsp;
-    <button class="btn btn-primary" @click="getLinkSecond()">Второй уровень соединения</button> &nbsp;
-    <button class="btn btn-primary" onclick="window.location.href = '/mp-link/not-link?mpId=1&linkType=1'">Ручное
-        связывание
-    </button> &nbsp;
+    <button class="btn btn-primary"  onclick="window.location.href = ''">Первый уровень</button> &nbsp;
+    <button class="btn btn-primary" @click="getLink(2)">Второй уровень соединения</button> &nbsp;
+    <button class="btn btn-primary" @click="hrefToManual('first')">Ручное связывание {{ mpFirstName }}</button> &nbsp;
+    <button class="btn btn-primary" @click="hrefToManual('second')">Ручное связывание {{ mpSecondName }}</button> &nbsp;
     <button class="btn btn-primary" @click="getLink(true)">Начать заново</button>
     <br><br>
 
@@ -105,4 +104,4 @@
 
 
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-<script src="/js/mp_link.js"></script>
+<script src="/js/mp_link/auto.js"></script>

@@ -9,6 +9,10 @@ const App = {
     },
 
     methods: {
+        hrefToAuto() {
+            window.location.href = 'auto?linkType=' + this.linkType
+        },
+
         linkSearch(productId) {
             window.location.href = "manual-binding?id=" + productId + "&linkType=" + this.linkType
         },
@@ -16,7 +20,7 @@ const App = {
         async noLink(key) {
             this.products[key]['noLink'] = !this.products[key]['noLink']
 
-            const response = await fetch('/mp-link/no-link', {
+            const response = await fetch('no-link', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -35,7 +39,7 @@ const App = {
 
         async getProduct() {
             let products;
-            const response = await fetch('/mp-link/get-not-link', {
+            const response = await fetch('/mp_link/get-not-link', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

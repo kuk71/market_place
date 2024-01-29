@@ -11,6 +11,10 @@ const App = {
     },
 
     methods: {
+        hrefToManual() {
+            window.location.href = 'manual?linkType=' + this.linkType + '&mpId=' + this.productLink['mp_id']
+        },
+
         changeShowAll() {
             this.showAllButton = "Искать только в не связанных товарах"
 
@@ -22,7 +26,7 @@ const App = {
         },
 
         async pairLink(key, productId) {
-            const response = await fetch('/mp-link/link-products', {
+            const response = await fetch('/mp_link/link-products', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -38,7 +42,7 @@ const App = {
 
         async getData() {
             let res;
-            const response = await fetch('/mp-link/get-manual-binding', {
+            const response = await fetch('/mp_link/get-manual-binding', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -52,7 +56,7 @@ const App = {
             res = await response.json()
 
             if (res.success) {
-                this.productLink = await res.data['productLink'][0]
+                this.productLink = await res.data['productLink']
                 this.productsForLink = await res.data['productsForLink']['data']
             }
 

@@ -29,6 +29,29 @@ use Yii;
  */
 class ProductSimilar extends \yii\db\ActiveRecord
 {
+
+    public static function getLinkTypeByUserId(int $userId)
+    {
+        $query = "
+            SELECT DISTINCT
+                LT.id,
+                LT.mp_first_id,
+                LT.mp_second_id,
+                MPF.name AS mp_first_name,
+                MPS.name AS mp_second_name
+            FROM " . self::tableName() . " AS PS
+            JOIN " . MpLinkTypes::tableName() . " AS LT
+                ON (PS.mp_link_type_id = LT.id)
+            JOIN " . MP::tableName() . " AS MPF
+                ON (LT.mp_first_id = MPF.id)
+            JOIN " . MP::tableName() . " AS MPS
+                ON (LT.mp_second_id = MPS.id)
+            WHERE PS.user_id = $userId
+        ";
+
+        return Yii::$app->db->createCommand($query)->queryAll();
+    }
+
     /**
      * {@inheritdoc}
      */

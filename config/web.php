@@ -49,7 +49,12 @@ $config = [
 
 
             'rules' => [
-                'test' => 'site/test',
+//                [
+//                    'pattern' => 'mp-link/start',
+//                    'route' => 'mpLink/start',
+//                    //'defaults' => ['page' => 1, 'tag' => ''],
+//                    // 'class' => 'app\controllers\mp_link\StartController'
+//                ],
 
             ],
         ],

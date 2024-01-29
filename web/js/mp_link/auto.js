@@ -1,6 +1,11 @@
 const App = {
     data() {
         return {
+            mpFirstId: null,
+            mpSecondId: null,
+            mpFirstName: null,
+            mpSecondName: null,
+            linkType: null,
             mpLinks: [],
             color: ["table-success", "table-info",],
             lastFirstId: 0,
@@ -8,6 +13,10 @@ const App = {
         }
     },
     methods: {
+        hrefToManual(num) {
+            window.location.href = '/mp_link/manual?linkType=' + this.linkType + '&mpId=' + this.mpLinks[0][num + 'MpId']
+        },
+
         setColor() {
             let lastFistId = 0;
             let lastColorId = 0;
@@ -28,6 +37,8 @@ const App = {
                     lastColorId = this.mpLinks[i]['colorId']
                 }
             }
+
+            console.log(this.mpFirstName, this.mpSecondName)
         },
 
         delLink(id, linkId) {
@@ -48,20 +59,21 @@ const App = {
         },
 
 
-        async getLink(delLink = false) {
+        async getLink(linkNum = 1, delLink = false) {
             let mp;
 
             this.mpLinks = []
 
             this.topic = "Первый уровень соединения"
 
-            const response = await fetch('/mp-link/get', {
+            const response = await fetch('/mp_link/get-link', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    linkType: 1,
+                    linkType: this.linkType,
+                    linkNum: linkNum,
                     delLink: delLink
                 }),
             })
@@ -72,37 +84,16 @@ const App = {
 
             await this.setColor()
 
+            this.mpFirstName = this.mpLinks[0]['firstMpName']
+            this.mpSecondName = this.mpLinks[0]['secondMpName']
+            this.mpFirstId = this.mpLinks[0]['firstMpId']
+            this.mpSecondId = this.mpLinks[0]['secondMpId']
+
             console.log(this.mpLinks)
         },
 
-        async getLinkSecond() {
-            let mp;
-
-            this.mpLinks = []
-
-            this.topic = "Второй уровень соединения"
-
-            const response = await fetch('/mp-link/get-second', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    linkType: 1,
-                    delLink: false
-                }),
-            })
-
-            mp = await response.json()
-            this.mpLinks = await mp.data
-            await this.setColor()
-
-            window.scrollTo(0, 0);
-            // await console.log(mp)
-        },
-
         async delLinkRequest(linkId) {
-            const response = await fetch('/mp-link/del-link', {
+            const response = await fetch('/mp_link/del-link', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -115,6 +106,9 @@ const App = {
     },
 
     mounted() {
+        const urlParams = new URLSearchParams(window.location.search);
+        this.linkType = urlParams.get('linkType');
+
         this.getLink()
     },
 }

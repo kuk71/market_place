@@ -2,7 +2,7 @@
 
     <h1>Ручное связывание</h1>
 
-    <button class="btn btn-primary"  onclick="window.location.href = '/mp-link'">Автоматическое связывание</button>
+    <button class="btn btn-primary"  @click="hrefToAuto()">Автоматическое связывание</button>
 
     <br><br>
 
@@ -70,4 +70,4 @@
 </div>
 
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-<script type="module" src="/js/mp_product_not_link.js"></script>
+<script type="module" src="/js/mp_link/manual.js"></script>

@@ -1,0 +1,19 @@
+<?php
+// получить список сосчитанных типов соединения маркет плейсов
+
+use app\models\db\ProductSimilar;
+
+$userId = Yii::$app->user->id;
+// $userId = 0;
+$availableLinkTypes = ProductSimilar::getLinkTypeByUserId($userId);
+
+echo "<h1>Связать товары маркет плейсов</h1>";
+
+if (count($availableLinkTypes) === 0) {
+    echo "Нет данных для связывания.";
+} else {
+
+    foreach($availableLinkTypes AS $linkType){
+        echo "<a class='btn btn-primary m-3' href='/mp_link/auto?linkType={$linkType['id']}' role='button'>{$linkType['mp_first_name']} / {$linkType['mp_second_name']}</a>";
+    }
+}

@@ -35,7 +35,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="/mp-link">Связь маркет плейсов</a>
+                        <a class="nav-link active" aria-current="page" href="/mp_link/start">Связь маркет плейсов</a>
                     </li>
                 </ul>
             </div>
