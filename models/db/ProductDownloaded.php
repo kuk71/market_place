@@ -133,7 +133,7 @@ class ProductDownloaded extends \yii\db\ActiveRecord
         ";
 
         // запрос на получение товара без пары
-        $query = '
+        $query = "
             SELECT
                 PD.id,
                 PD.product_mp_id,
@@ -147,17 +147,17 @@ class ProductDownloaded extends \yii\db\ActiveRecord
                 PD.size_1_mm,
                 PD.size_2_mm,
                 PD.size_3_mm,
-                case when NL.id IS NULL then false else true end AS "noLink"
+                case when NL.id IS NULL then false else true end AS \"noLink\"
             FROM
-                ' . self::tableName() . ' AS PD
+                " . self::tableName() . " AS PD
             LEFT JOIN
-                ' . MpLinkNo::tableName(). ' AS NL
-                    ON (PD.id = NL.product_id)
+                " . MpLinkNo::tableName(). " AS NL
+                    ON (PD.id = NL.product_id AND NL.mp_link_type_id = $linkTypeId)
             WHERE
-                PD.user_id = ' . $userId . '
-                AND PD.mp_id = ' . $mpId . '
-                AND PD.id NOT IN (' . $productLinkId . ')
-       ';
+                PD.user_id = $userId 
+                AND PD.mp_id =  $mpId 
+                AND PD.id NOT IN ($productLinkId)
+       ";
 
         return Yii::$app->db->createCommand($query)->queryAll();
     }

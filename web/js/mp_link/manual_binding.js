@@ -5,8 +5,8 @@ const App = {
             productLink: [],
             linkType: null,
             productId: null,
-            showAll: false,
-            showAllButton: "Искать среди всех товаров"
+            showAll: true,
+            showAllButton: "Искать только в не связанных товарах"
         }
     },
 

@@ -65,6 +65,9 @@ const App = {
             this.mpLinks = []
 
             this.topic = "Первый уровень соединения"
+            if (linkNum === 2) {
+                this.topic = "Второй уровень соединения"
+            }
 
             const response = await fetch('/mp_link/get-link', {
                 method: 'POST',
