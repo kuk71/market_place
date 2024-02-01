@@ -16,9 +16,15 @@
     </thead>
 
     <?PHP
-
+    $color = 'table-success';
     foreach($catalog AS $products) {
-        echo "<tbody class=\"table-group-divider align-top border-dark border-3\">";
+        if($color === 'table-success') {
+            $color = 'table-info';
+        } else {
+            $color = 'table-success';
+        }
+
+        echo "<tbody class=\"table-group-divider align-top border-dark border-3 $color\">";
 
         foreach ($products AS $product) {
             $img = json_decode($product['img']);
