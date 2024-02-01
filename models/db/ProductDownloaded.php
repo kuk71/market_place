@@ -39,6 +39,49 @@ use Yii;
 class ProductDownloaded extends \yii\db\ActiveRecord
 {
 
+    public static function getProductByListProductId(array $pIds)
+    {
+        $pIds = array_map('intval', $pIds);
+
+        $pIds = implode(",", $pIds);
+
+        $query = "
+            SELECT
+                PD.id,
+                PD.mp_id,
+                MP.name AS mp_name,
+                PD.product_mp_id,
+                PD.name,
+                PD.img, 
+                PD.color,
+                PD.vendor_code,
+                PD.description
+            FROM " . self::tableName() . " AS PD
+            JOIN " . MP::tableName() . " AS MP
+                ON (PD.mp_id = MP.id)
+            WHERE
+                PD.id IN ($pIds)
+        ";
+
+        return Yii::$app->db->createCommand($query)->queryAll();
+    }
+
+    public static function getProductIdsByUserIdMpId(int $userId, int $mpId) {
+        return self::find()
+            ->select('id')
+            ->where(['user_id' => Yii::$app->user->id, 'mp_id' => $mpId])
+            ->column();
+    }
+
+    public static function getMpIdsByUserId(int $userId)
+    {
+        return self::find()
+            ->select('mp_id')
+            ->distinct()
+            ->where(['user_id' => $userId])
+            ->column();
+    }
+
     public static function getMpIdByProductId(int $userId, int $id) {
         return self::find()
             ->select('mp_id')

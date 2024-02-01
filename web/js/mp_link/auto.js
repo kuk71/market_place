@@ -8,7 +8,6 @@ const App = {
             linkType: null,
             mpLinks: [],
             color: ["table-success", "table-info",],
-            lastFirstId: 0,
             topic: "",
         }
     },
@@ -18,15 +17,15 @@ const App = {
         },
 
         setColor() {
-            let lastFistId = 0;
+            let lastFirstId = 0;
             let lastColorId = 0;
 
             for (let i = 0; i < this.mpLinks.length; i++) {
                 this.mpLinks[i]['colorId'] = lastColorId
 
-                if (lastFistId != this.mpLinks[i]['firstId']) {
+                if (lastFirstId != this.mpLinks[i]['firstMpProductId']) {
 
-                    lastFistId = this.mpLinks[i]['firstId']
+                    lastFirstId = this.mpLinks[i]['firstMpProductId']
 
                     if (lastColorId == 0) {
                         this.mpLinks[i]['colorId'] = 1

@@ -102,14 +102,15 @@ class MpLinkCandidates extends \yii\db\ActiveRecord
     public static function getLinkProduct(int $userId, int $linkTypeId, int $linkNum)
     {
         $whereLinkNum = "AND link_num = $linkNum";
-        if ($linkNum === 1) {
+        if ($linkNum === 0) {
             $whereLinkNum = "";
         }
 
         $query = "
             SELECT
                 LC.id AS \"linkId\",
-                FM.product_mp_id AS \"firstId\",
+                FM.id AS \"firstId\",
+                FM.product_mp_id AS \"firstMpProductId\",
                 FMP.id AS \"firstMpId\",
                 FMP.name AS \"firstMpName\",
                 FM.vendor_code AS \"firstVendorCode\",
@@ -122,7 +123,8 @@ class MpLinkCandidates extends \yii\db\ActiveRecord
                 FM.size_3_mm AS \"firstSize3mm\",
                 FM.weight_gr AS \"firstWeightGr\",
                 FM.img AS \"firstImg\",
-                SM.product_mp_id AS \"secondId\",
+                SM.id AS \"secondId\",
+                SM.product_mp_id AS \"secondMpProductId\",
                 SMP.id AS \"secondMpId\",
                 SMP.name AS \"secondMpName\",
                 SM.vendor_code AS \"secondVendorCode\",

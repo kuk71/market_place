@@ -66,7 +66,9 @@ class GetLinkController extends Controller
             MpLinkCandidates::addLinkSecond($userId, $linkTypeId, $queryPairNotLink);
         }
 
-
+        if ($linkNum === 1){
+            $linkNum = 0;
+        }
 
         $response['data'] = MpLinkCandidates::getLinkProduct($userId, $linkTypeId, $linkNum);
 

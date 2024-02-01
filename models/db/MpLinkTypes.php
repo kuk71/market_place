@@ -14,6 +14,14 @@ use Yii;
 class MpLinkTypes extends \yii\db\ActiveRecord
 {
 
+    public static function getTypeLinkIdByFirtsMpId(int $firstMpId)
+    {
+        return self::find()
+            ->where(['mp_first_id' => $firstMpId])
+            ->asArray()
+            ->all();
+    }
+
     public static function getTypeLinkIdByMpId(int $userId, int $firstMpId, int $secondMpId)
     {
         return self::find()

@@ -50,7 +50,7 @@
         </tr>
 
         <tr>
-            <td><b>{{mpLink.firstMpName}}</b> <br> {{ mpLink.firstId }}</td>
+            <td><b>{{mpLink.firstMpName}}</b> <br> {{ mpLink.firstMpProductId }}</td>
             <td>{{ mpLink.firstColor }}</td>
             <td>{{ mpLink.firstVendorCode }}</td>
 
@@ -71,7 +71,7 @@
         </tr>
 
         <tr>
-            <td><b>{{mpLink.secondMpName}}</b> <br> {{ mpLink.secondId }}</td>
+            <td><b>{{mpLink.secondMpName}}</b> <br> {{ mpLink.secondMpProductId }}</td>
             <td>{{ mpLink.secondColor }}</td>
             <td>{{ mpLink.secondVendorCode }}</td>
             <td>
