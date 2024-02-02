@@ -112,6 +112,7 @@ class ProductDownloaded extends \yii\db\ActiveRecord
 
         $query = "
             SELECT DISTINCT ON (PD.id)
+                MP.name AS mp_name,
                 PD.id,
                 PD.mp_id,
                 PD.product_mp_id,
@@ -126,11 +127,12 @@ class ProductDownloaded extends \yii\db\ActiveRecord
                 PD.size_2_mm,
                 PD.size_3_mm,
                 LC.$numProduct AS link_candidate
-            FROM
-                " . self::tableName() . " AS PD
-                LEFT JOIN
-                    " . MpLinkCandidates::tableName() . " AS LC
-                    ON (PD.id = LC.$numProduct AND LC.user_id = $userId AND LC.mp_link_type_id = $linkTypeId AND LC.is_del = 0)
+            FROM " . self::tableName() . " AS PD
+            LEFT JOIN " . MpLinkCandidates::tableName() . " AS LC
+                ON (PD.id = LC.$numProduct AND LC.user_id = $userId AND LC.mp_link_type_id = $linkTypeId AND LC.is_del = 0)
+            LEFT JOIN " . MP::tableName() . " AS MP
+                ON (PD.mp_id = MP.id)
+                
             WHERE
                 PD.user_id = $userId
                 AND PD.mp_id = $mpId
@@ -142,6 +144,32 @@ class ProductDownloaded extends \yii\db\ActiveRecord
 
     public static function getProductById(int $userId, int $productId)
     {
+        $query = "
+            SELECT
+                MP.name AS mp_name,
+                PD.id,
+                PD.mp_id,
+                PD.product_mp_id,
+                PD.vendor_code,
+                PD.name,
+                PD.description,
+                PD.kit,
+                PD.color,
+                PD.img,
+                PD.weight_gr,
+                PD.size_1_mm, 
+                PD.size_2_mm,
+                PD.size_3_mm
+            FROM " . self::tableName() . " AS PD
+            JOIN " . MP::tableName() . " AS MP
+                ON (PD.mp_id = MP.id)
+            WHERE
+                PD.user_id = $userId
+                AND PD.id = $productId
+        ";
+
+        return Yii::$app->db->createCommand($query)->queryAll();
+
         return self::find()
             ->select(["id",  "mp_id", "product_mp_id", "vendor_code", "name", "description", "kit", "color", "img", "weight_gr", "size_1_mm", "size_2_mm", "size_3_mm"])
             ->where(["user_id" => $userId, "id" => $productId])
@@ -178,6 +206,7 @@ class ProductDownloaded extends \yii\db\ActiveRecord
         // запрос на получение товара без пары
         $query = "
             SELECT
+                MP.name AS mp_name,
                 PD.id,
                 PD.product_mp_id,
                 PD.vendor_code,
@@ -191,11 +220,11 @@ class ProductDownloaded extends \yii\db\ActiveRecord
                 PD.size_2_mm,
                 PD.size_3_mm,
                 case when NL.id IS NULL then false else true end AS \"noLink\"
-            FROM
-                " . self::tableName() . " AS PD
-            LEFT JOIN
-                " . MpLinkNo::tableName(). " AS NL
-                    ON (PD.id = NL.product_id AND NL.mp_link_type_id = $linkTypeId)
+            FROM " . self::tableName() . " AS PD
+            LEFT JOIN  " . MpLinkNo::tableName(). " AS NL
+                ON (PD.id = NL.product_id AND NL.mp_link_type_id = $linkTypeId)
+            JOIN " . MP::tableName() . " AS MP
+                ON (PD.mp_id = MP.id) 
             WHERE
                 PD.user_id = $userId 
                 AND PD.mp_id =  $mpId 

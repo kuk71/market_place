@@ -63,10 +63,7 @@ const App = {
 
             this.mpLinks = []
 
-            this.topic = "Первый уровень соединения"
-            if (linkNum === 2) {
-                this.topic = "Второй уровень соединения"
-            }
+
 
             const response = await fetch('/mp_link/get-link', {
                 method: 'POST',
@@ -91,7 +88,12 @@ const App = {
             this.mpFirstId = this.mpLinks[0]['firstMpId']
             this.mpSecondId = this.mpLinks[0]['secondMpId']
 
-            console.log(this.mpLinks)
+            this.topic = "Первый уровень соединения "
+            if (linkNum === 2) {
+                this.topic = "Второй уровень соединения "
+            }
+
+            this.topic = this.topic + this.mpFirstName +" / " + this.mpSecondName
         },
 
         async delLinkRequest(linkId) {

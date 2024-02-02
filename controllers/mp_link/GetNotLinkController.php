@@ -48,12 +48,15 @@ class GetNotLinkController extends Controller
             $productNotLink = ProductDownloaded::getProductNotLink($userId, $linkTypeId, $mpId);
             $response['count'] = count($productNotLink);
             $response['data'] = $productNotLink;
+
+
+
         } catch (Exception $e) {
             $response['success'] = false;
             $response['error'] = 4;
         }
 
-        // print_r(); exit;
+
 
         return $this->asJson($response);
     }

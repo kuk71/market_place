@@ -1,6 +1,6 @@
 <div id="app" v-cloak>
 
-    <h1>Ручное связывание</h1>
+    <h1>{{ topic }}</h1>
 
     <button class="btn btn-primary"  @click="hrefToAuto()">Автоматическое связывание</button>
 

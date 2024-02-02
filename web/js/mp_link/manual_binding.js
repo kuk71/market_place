@@ -1,6 +1,7 @@
 const App = {
     data() {
         return {
+            topic: "Ручное связывание ",
             productsForLink: [],
             productLink: [],
             linkType: null,
@@ -58,9 +59,13 @@ const App = {
             if (res.success) {
                 this.productLink = await res.data['productLink']
                 this.productsForLink = await res.data['productsForLink']['data']
+
+                this.topic = this.topic + this.productLink.mp_name + " / " + this.productsForLink[0]['mp_name']
             }
 
-            console.log(this.productsForLink)
+
+            console.log(this.productLink.mp_name)
+            console.log(this.productsForLink[0])
         },
 
         getImg(imgList) {

@@ -2,6 +2,7 @@ const App = {
     data() {
         return {
             products: [],
+            topic: "Ручное связывание ",
 
             linkType: null,
             mpId: null,
@@ -53,6 +54,7 @@ const App = {
             products = await response.json()
 
             this.products = await products.data
+            this.topic = this.topic + this.products[0].mp_name
 
             await console.log(this.products)
         },
