@@ -10,8 +10,12 @@ class ProductDownloaded
 
     public static function createQueryForFindSimilarProduct(int $userId, string $field, int $mpFirstId, int $mpSecondId)
     {
-        $queryFirst = "SELECT id, $field FROM " . ProductDownloaded::TBL . " WHERE user_id = $userId AND mp_id = $mpFirstId";
-        $querySecond = "SELECT id, $field FROM " . ProductDownloaded::TBL . " WHERE user_id = $userId AND mp_id = $mpSecondId";
+        $queryFirst = "SELECT id, $field FROM " . self::TBL . " WHERE user_id = $userId AND mp_id = $mpFirstId";
+        $querySecond = "SELECT id, $field FROM " . self::TBL . " WHERE user_id = $userId AND mp_id = $mpSecondId";
+
+        if ($mpSecondId === 4) {
+            $querySecond = "SELECT id, $field FROM " . MS::TBL . " WHERE user_id = $userId";
+        }
 
         $on = "F.$field = S.$field";
 

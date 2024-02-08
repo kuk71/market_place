@@ -9,7 +9,7 @@ use yii\filters\AccessControl;
 use yii\rest\Controller;
 
 
-class ManualBindingController extends Controller
+class ManualBindingMsController extends Controller
 {
     /**
      * {@inheritdoc}
@@ -32,6 +32,6 @@ class ManualBindingController extends Controller
     public
     function actionIndex()
     {
-        return $this->render('/mp_link/manual_binding');
+        return $this->render('/mp_link/manual_binding_ms');
     }
 }

@@ -13,7 +13,7 @@ const App = {
 
     methods: {
         hrefToManual() {
-            window.location.href = 'manual?linkType=' + this.linkType + '&mpId=' + this.productLink['mp_id']
+            window.location.href = 'manual-ms?linkType=' + this.linkType + '&mpId=' + this.productLink['mp_id']
         },
 
         changeShowAll() {
@@ -27,7 +27,7 @@ const App = {
         },
 
         async pairLink(key, productId) {
-            const response = await fetch('/mp_link/link-products', {
+            const response = await fetch('/mp_link/link-products-ms', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -43,7 +43,7 @@ const App = {
 
         async getData() {
             let res;
-            const response = await fetch('/mp_link/get-manual-binding', {
+            const response = await fetch('/mp_link/get-manual-binding-ms', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -77,7 +77,7 @@ const App = {
 
             let imgRender = ""
             for (let i = 0; i < imgs.length; i++) {
-                imgRender = imgRender + '<a target="_blank" href="' + imgs[i] + '"><img src="' + imgs[i] + '" style="margin: 0 0 0 10px; height: 100px"></a> '
+                imgRender = imgRender + '<img src="' + imgs[i] + '" style="margin: 0 0 0 10px; height: 100px"> '
             }
 
             return imgRender;

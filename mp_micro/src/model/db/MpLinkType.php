@@ -13,7 +13,14 @@ class MpLinkType
         $mpIds = array_map('intval', $mpIds);
         $mpIds = implode(",", $mpIds);
 
-        $query = "SELECT DISTINCT id FROM " . self::TBL . " WHERE mp_first_id IN ($mpIds) AND mp_second_id IN ($mpIds)";
+        $query = "
+            SELECT DISTINCT 
+                id 
+            FROM " . self::TBL . " 
+            WHERE 
+                is_all = 1
+                AND mp_first_id IN ($mpIds) 
+                AND mp_second_id IN ($mpIds)";
 
         return App::db()->query($query)->fetchAll(PDO::FETCH_COLUMN, 0);
     }

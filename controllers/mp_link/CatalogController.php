@@ -6,6 +6,7 @@ use app\controllers\Exeption;
 use app\models\db\MP;
 use app\models\db\MpLinkCandidates;
 use app\models\db\MpLinkTypes;
+use app\models\db\MpMs;
 use app\models\db\ProductDownloaded;
 use Yii;
 use yii\filters\AccessControl;
@@ -44,24 +45,69 @@ class CatalogController extends Controller
         self::catalog($userId, $catalog);
 
 
-
         // получить из БД список товаров из каталога
         $catalogDetail = self::getCatalogDetails($catalog);
 
         // соеденить какталог с деталями и упорядочить элементы каталога по полю mp_id
         $catalog = self::getCatalogComplete($catalog, $catalogDetail);
 
+        // присоединить к каталогу Мой склад
+        self::addMS($userId, $catalog);
+
         unset($catalogDetail);
 
         return $this->render('/mp_link/catalog', ['catalog' => $catalog]);
+    }
+
+    private static function addMS(int $userId, array &$catalog)
+    {
+        foreach ($catalog as $keyCatalog => $itemCatalog) {
+            // фиксируется по какому магазину ищется соттветствие позиций Моему складу
+            $mpId = (int)$itemCatalog[0]['mp_id'];
+
+            if ($mpId === 1) {
+                $linkTypeId = 4;
+            } else if ($mpId === 2) {
+                $linkTypeId = 5;
+            } else {
+                $linkTypeId = 6;
+            }
+
+            foreach ($itemCatalog as $product) {
+                if ($product['mp_id'] !== $mpId) {
+                    break;
+                }
+
+                $ms = MpMs::getByProductIdLink($userId, $linkTypeId, $product['id']);
+
+                if ($ms !== false) {
+                    foreach($ms AS $m) {
+                        $m = [
+                            'mp_id' => 4,
+                            'mp_name' => 'М_С',
+                            'product_mp_id' => $m['UUID'],
+                            'name' => $m['name'],
+                            'vendor_code' => $m['code'],
+                            'description' => $m['article'],
+                            'color' => $m['barcode'],
+                            'img' => '',
+                        ];
+
+                        array_unshift($catalog[$keyCatalog], $m);
+                    }
+                }
+
+
+            }
+        }
     }
 
     private static function getCatalogComplete(array $catalog, array $catalogDetail): array
     {
         $catalogComplete = [];
 
-        foreach($catalog AS $key => $item) {
-            foreach($item AS $pId) {
+        foreach ($catalog as $key => $item) {
+            foreach ($item as $pId) {
                 $catalogComplete[$key][] = $catalogDetail[$pId];
             }
         }
@@ -96,7 +142,7 @@ class CatalogController extends Controller
             self::addCatalogMpLinks($userId, $mpId, $catalog);
         }
 
-         // echo "<pre>"; print_r($catalog); exit;
+        // echo "<pre>"; print_r($catalog); exit;
 
         // собрать дубли
         self::addDoubles($catalog);

@@ -3,13 +3,11 @@
 namespace app\controllers\mp_link;
 
 use app\controllers\Exeption;
-use app\models\db\MpLinkCandidates;
-use Yii;
 use yii\filters\AccessControl;
 use yii\rest\Controller;
 
 
-class ManualBindingController extends Controller
+class AutoMsController extends Controller
 {
     /**
      * {@inheritdoc}
@@ -29,9 +27,8 @@ class ManualBindingController extends Controller
         ];
     }
 
-    public
-    function actionIndex()
+    public function actionIndex()
     {
-        return $this->render('/mp_link/manual_binding');
+        return $this->render('/mp_link/auto_ms');
     }
 }

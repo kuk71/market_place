@@ -104,6 +104,12 @@ class Yandex
         $findColor = [];
 
         foreach ($colors as $color) {
+            $position = false;
+
+            if (!is_null($haystack)) {
+                $position = mb_stripos($haystack, $color);
+            }
+
             $position = mb_stripos($haystack, $color);
 
             if ($position !== false) {

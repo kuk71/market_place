@@ -15,19 +15,24 @@ class SimilarProduct
         // получить ID связываемых маркет плейсов
         $mpIds = MpLinkType::getMpIdByLinkId($linkTypeId);
 
-        $mpFirstId = (int)$mpIds['mp_first_id'];
-        $mpSecondId = (int)$mpIds['mp_second_id'];
-
         if (!$mpIds) {
             throw new MarketException("action", 4, $linkTypeId);
         }
+
+        $mpFirstId = (int)$mpIds['mp_first_id'];
+        $mpSecondId = (int)$mpIds['mp_second_id'];
+
+
 
         PS::clear(App::getUserId(), $linkTypeId);
         PS::createNew(App::getUserId(), $linkTypeId, $mpFirstId, $mpSecondId);
 
         self::similarNum($mpFirstId, $mpSecondId, $linkTypeId);
 
-        self::similarText($linkTypeId);
+        if ($mpSecondId !== 4) {
+            self::similarText($linkTypeId);
+        }
+
     }
 
     private static function similarNum(int $mpFirstId, int $mpSecondId, int $linkTypeId)

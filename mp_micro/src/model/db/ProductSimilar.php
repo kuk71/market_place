@@ -113,6 +113,13 @@ class ProductSimilar
 
     public static function createNew(int $userId, int $linkTypeId, int $mpFirstId, int $mpSecondId)
     {
+        $queryF = "SELECT id FROM " . ProductDownloaded::TBL . " WHERE user_id = $userId AND mp_id = $mpFirstId";
+        $queryS = "SELECT id FROM " . ProductDownloaded::TBL . " WHERE user_id = $userId AND mp_id = $mpSecondId";
+
+        if ($mpSecondId === 4) {
+            $queryS = "SELECT id FROM " . MS::TBL . " WHERE user_id = $userId";
+        }
+
         $query = "
             SELECT 
                 $userId,
@@ -120,8 +127,8 @@ class ProductSimilar
                 F.id AS first_mp_product_id, 
                 S.id AS second_mp_product_id
             FROM 
-                (SELECT id FROM " . ProductDownloaded::TBL . " WHERE user_id = $userId AND mp_id = $mpFirstId) AS F,
-                (SELECT id FROM " . ProductDownloaded::TBL . " WHERE user_id = $userId AND mp_id = $mpSecondId) AS S
+                ($queryF) AS F,
+                ($queryS) AS S
                 ";
 
         $query = "INSERT INTO " . self::TBL . " (user_id, mp_link_type_id, first_mp_product_id, second_mp_product_id) ($query)";

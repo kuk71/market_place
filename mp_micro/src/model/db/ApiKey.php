@@ -25,7 +25,12 @@ class ApiKey
 
     public static function getMpIdsByUserId(int $userId)
     {
-        $query = "SELECT DISTINCT mp_id FROM " . self::TBL . " WHERE user_id = $userId";
+        $query = "
+            SELECT DISTINCT 
+                mp_id 
+            FROM " . self::TBL . " 
+            WHERE
+                user_id = $userId";
 
         return App::db()->query($query)->fetchAll(PDO::FETCH_COLUMN, 0);
     }

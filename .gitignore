@@ -33,3 +33,5 @@ config/db.php
 
 #vagrant folder
 /.vagrant
+/1.json
+/2.json

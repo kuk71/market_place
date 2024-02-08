@@ -234,6 +234,139 @@ class ProductDownloaded extends \yii\db\ActiveRecord
         return Yii::$app->db->createCommand($query)->queryAll();
     }
 
+    public static function getProductNotLinkWbMs(int $userId, int $linkTypeId, int $mpId)
+    {
+        // запрос на получение id товаров WB у которых нет пары в ozon
+        $queryNoPairByOzon = "
+            SELECT
+                NL.id_no_link
+            FROM 
+                (SELECT
+                    PD.id AS id_no_link,
+                    LC.second_mp_product_id
+                FROM " . ProductDownloaded::tableName() . " AS PD
+                LEFT JOIN " . MpLinkCandidates::tableName() . " AS LC
+                    ON (PD.id = LC.second_mp_product_id AND LC.mp_link_type_id = 1 AND LC.is_del = 0)
+                WHERE
+                    PD.user_id = $userId
+                    AND PD.mp_id = $mpId
+                    AND LC.first_mp_product_id IS NULL) AS NL
+        ";
+
+        $mpProductId = "first_mp_product_id";
+
+        // запрос на получение id товаров у которых есть пара
+        $gueryPairByMs = "
+            SELECT
+                $mpProductId
+            FROM
+                " . MpLinkCandidates::tableName() . "
+            WHERE
+                user_id = $userId
+                AND mp_link_type_id = $linkTypeId
+                AND is_del = 0
+                AND first_mp_product_id IN ($queryNoPairByOzon)
+        ";
+
+        // запрос на получение товара без пары
+        $query = "
+            SELECT
+                MP.name AS mp_name,
+                PD.id,
+                PD.product_mp_id,
+                PD.vendor_code,
+                PD.name,
+                PD.description,
+                PD.kit,
+                PD.color,
+                PD.img,
+                PD.weight_gr,
+                PD.size_1_mm,
+                PD.size_2_mm,
+                PD.size_3_mm,
+                case when NL.id IS NULL then false else true end AS \"noLink\"
+            FROM " . self::tableName() . " AS PD
+            LEFT JOIN  " . MpLinkNo::tableName(). " AS NL
+                ON (PD.id = NL.product_id AND NL.mp_link_type_id = $linkTypeId)
+            JOIN " . MP::tableName() . " AS MP
+                ON (PD.mp_id = MP.id) 
+            WHERE
+                PD.user_id = $userId 
+                AND PD.mp_id =  $mpId 
+                AND PD.id IN ($queryNoPairByOzon)
+                AND PD.id NOT IN ($gueryPairByMs)
+       ";
+
+        return Yii::$app->db->createCommand($query)->queryAll();
+    }
+
+
+    public static function getProductNotLinkYandexMs(int $userId, int $linkTypeId, int $mpId)
+    {
+        // запрос на получение id товаров Yanbex у которых нет пары в Ozon
+        $queryNoPairByOzon = "
+            SELECT
+                NL.id_no_link
+            FROM 
+                (SELECT
+                    PD.id AS id_no_link,
+                    LC.second_mp_product_id
+                FROM " . ProductDownloaded::tableName() . " AS PD
+                LEFT JOIN " . MpLinkCandidates::tableName() . " AS LC
+                    ON (PD.id = LC.second_mp_product_id AND LC.mp_link_type_id = 2 AND LC.is_del = 0)
+                WHERE
+                    PD.user_id = $userId
+                    AND PD.mp_id = $mpId
+                    AND LC.first_mp_product_id IS NULL) AS NL
+        ";
+
+        $mpProductId = "first_mp_product_id";
+
+        // запрос на получение id товаров у которых есть пара
+        $gueryPairByMs = "
+            SELECT
+                $mpProductId
+            FROM
+                " . MpLinkCandidates::tableName() . "
+            WHERE
+                user_id = $userId
+                AND mp_link_type_id = $linkTypeId
+                AND is_del = 0
+                AND first_mp_product_id IN ($queryNoPairByOzon)
+        ";
+
+        // запрос на получение товара без пары
+        $query = "
+            SELECT
+                MP.name AS mp_name,
+                PD.id,
+                PD.product_mp_id,
+                PD.vendor_code,
+                PD.name,
+                PD.description,
+                PD.kit,
+                PD.color,
+                PD.img,
+                PD.weight_gr,
+                PD.size_1_mm,
+                PD.size_2_mm,
+                PD.size_3_mm,
+                case when NL.id IS NULL then false else true end AS \"noLink\"
+            FROM " . self::tableName() . " AS PD
+            LEFT JOIN  " . MpLinkNo::tableName(). " AS NL
+                ON (PD.id = NL.product_id AND NL.mp_link_type_id = $linkTypeId)
+            JOIN " . MP::tableName() . " AS MP
+                ON (PD.mp_id = MP.id) 
+            WHERE
+                PD.user_id = $userId 
+                AND PD.mp_id =  $mpId 
+                AND PD.id IN ($queryNoPairByOzon)
+                AND PD.id NOT IN ($gueryPairByMs)
+       ";
+
+        return Yii::$app->db->createCommand($query)->queryAll();
+    }
+
 
     /**
      * {@inheritdoc}

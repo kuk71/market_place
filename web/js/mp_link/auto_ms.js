@@ -9,11 +9,12 @@ const App = {
             mpLinks: [],
             color: ["table-success", "table-info",],
             topic: "",
+            all: '',
         }
     },
     methods: {
-        hrefToManual(num) {
-            window.location.href = '/mp_link/manual?linkType=' + this.linkType + '&mpId=' + this.mpLinks[0][num + 'MpId']
+        hrefToManual(mpId, linkType) {
+            window.location.href = '/mp_link/manual-ms?linkType=' + linkType + '&mpId=' + mpId
         },
 
         setColor() {
@@ -63,15 +64,12 @@ const App = {
 
             this.mpLinks = []
 
-
-
-            const response = await fetch('/mp_link/get-link', {
+            const response = await fetch('/mp_link/get-link-ms', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    linkType: this.linkType,
                     linkNum: linkNum,
                     delLink: delLink
                 }),
@@ -94,6 +92,11 @@ const App = {
             }
 
             this.topic = this.topic + this.mpFirstName +" / " + this.mpSecondName
+
+            this.all = (this.mpLinks).length
+
+            console.log(this.all)
+            console.log(this.mpLinks)
         },
 
         async delLinkRequest(linkId) {

@@ -95,6 +95,7 @@ trait TraitNormalize
                 $multiplier = 1000;
                 break;
             case('см'):
+            case('sm'):
                 $multiplier = 10;
                 break;
             case('g'):
