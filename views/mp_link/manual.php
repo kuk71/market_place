@@ -6,6 +6,8 @@
 
     <br><br>
 
+    <p><b>Не связанных товаров: {{ products.length }}</b></p>
+
     <table class="table table-bordered border-dark">
         <thead>
         <tr>

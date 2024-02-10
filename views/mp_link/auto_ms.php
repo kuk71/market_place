@@ -11,6 +11,8 @@
     <button class="btn btn-primary" @click="getLink(1, true)">Начать заново</button>
     <br><br>
 
+    <p><b>Пар на странице: {{ mpLinks.length }}</b></p>
+
     <table class="table table-bordered border-dark">
         <thead>
         <tr>

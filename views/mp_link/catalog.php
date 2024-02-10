@@ -16,6 +16,9 @@
     </thead>
 
     <?PHP
+
+    echo "<br><p><b>Всего позиций в каталоге: " . count($catalog) . "</b></p>";
+
     $color = 'table-success';
     foreach($catalog AS $products) {
         if($color === 'table-success') {
