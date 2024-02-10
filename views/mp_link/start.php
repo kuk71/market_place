@@ -21,11 +21,11 @@ if (count($availableLinkTypes) === 0) {
     echo "</div>";
 
     echo "<div>";
-    echo "<a class='btn btn-primary m-3' href='/mp_link/catalog' role='button'>Создать единый каталог товара</a>";
-    echo "</div>";
-    echo "<div>";
     echo "<a class='btn btn-primary m-3' href='/mp_link/auto-ms?linkType=4' role='button'>Ozon / Мой склад</a>";
+    echo "</div>";
 
+    echo "<div>";
+    echo "<a class='btn btn-primary m-3' href='/mp_link/catalog' role='button'>Создать единый каталог товара</a>";
     echo "</div>";
 
 }
