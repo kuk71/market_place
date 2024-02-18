@@ -129,6 +129,8 @@ class Wb
                 "dimension_height" => $dimension[$pP->subjectID]['height'],
 
                 "json" => json_encode($pP),
+                "barcode" => "",
+                'id_for_sold_reports' => "",
             ];
         }
 

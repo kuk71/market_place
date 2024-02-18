@@ -27,10 +27,12 @@ class ApiKey
     {
         $query = "
             SELECT DISTINCT 
-                mp_id 
-            FROM " . self::TBL . " 
+                API.mp_id 
+            FROM " . self::TBL . " AS API
+            JOIN " . MP::TBL . " AS MP
+                ON (API.mp_id = MP.id AND MP.type = 'mp')
             WHERE
-                user_id = $userId";
+                API.user_id = $userId";
 
         return App::db()->query($query)->fetchAll(PDO::FETCH_COLUMN, 0);
     }

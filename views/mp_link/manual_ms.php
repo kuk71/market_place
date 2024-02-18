@@ -12,7 +12,7 @@
         <thead>
         <tr>
             <th scope="col"></th>
-            <th scope="col">id</th>
+            <th scope="col" style="width: 170px">id</th>
             <th scope="col">Цвет</th>
             <th scope="col">Код продовца</th>
             <th scope="col">Название</th>
@@ -47,7 +47,7 @@
         </tr>
 
         <tr :class="{'table-secondary': product['noLink']}">
-            <td>{{ product.product_mp_id }}</td>
+            <td>{{ product.product_mp_id }} <br> BC: {{ product.barcode }} <br> SKU: {{ product.id_for_sold_reports }}</td>
             <td>{{ product.color }}</td>
             <td>{{ product.vendor_code }}</td>
 

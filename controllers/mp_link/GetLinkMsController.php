@@ -58,6 +58,8 @@ class GetLinkMsController extends Controller
             // второй уровень соединения
             $queryPairNotLink = MpLinkCandidates::getQueryPairNotLinkMs($userId, $linkTypeId);
 
+            // print_r($queryPairNotLink); exit;
+
             if (!$queryPairNotLink) {
                 $response['success'] = false;
                 $response['error'] = 2;

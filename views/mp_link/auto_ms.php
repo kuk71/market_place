@@ -4,9 +4,7 @@
 
     <button class="btn btn-primary"  onclick="window.location.href = ''">Первый уровень</button> &nbsp;
     <button class="btn btn-primary" @click="getLink(2)">Второй уровень соединения</button> &nbsp;
-    <button class="btn btn-primary" @click="hrefToManual(1, 4)">Ручное связывание Ozon</button> &nbsp;
-    <button class="btn btn-primary" @click="hrefToManual(2, 5)">Ручное связывание WB</button> &nbsp;
-    <button class="btn btn-primary" @click="hrefToManual(3, 6)">Ручное связывание Yandex</button> &nbsp;
+    <button class="btn btn-primary" @click="hrefToManual(1, 4)">Ручное связывание Ozon</button> &nbsp;&nbsp;
 
     <button class="btn btn-primary" @click="getLink(1, true)">Начать заново</button>
     <br><br>
@@ -51,7 +49,7 @@
 
 
         <tr>
-            <td><b>{{mpLink.firstMpName}}</b> <br> {{ mpLink.firstMpProductId }}</td>
+            <td><b>{{mpLink.firstMpName}}</b> <br> O_id: {{ mpLink.firstMpProductId }} <br> BC: {{ mpLink.firstBarcode}} <br> SKU:  {{ mpLink.id_for_sold_reports}}</td>
             <td>{{ mpLink.firstColor }}</td>
             <td>{{ mpLink.firstVendorCode }}</td>
 
@@ -72,7 +70,7 @@
         </tr>
 
         <tr>
-            <td><b>{{mpLink.secondMpName}}</b> <br> {{ mpLink.secondMpProductId }}</td>
+            <td><b>{{mpLink.secondMpName}}</b> <br> E_id: {{ mpLink.secondMpProductId}} <br> BC: {{ mpLink.secondBarcode}}</td>
             <td>{{ mpLink.secondColor }}</td>
             <td>{{ mpLink.secondVendorCode }}</td>
             <td>
@@ -97,8 +95,6 @@
     <button class="btn btn-primary"  onclick="window.location.href = ''">Первый уровень</button> &nbsp;
     <button class="btn btn-primary" @click="getLink(2)">Второй уровень соединения</button> &nbsp;
     <button class="btn btn-primary" @click="hrefToManual(1, 4)">Ручное связывание Ozon</button> &nbsp;
-    <button class="btn btn-primary" @click="hrefToManual(2, 5)">Ручное связывание WB</button> &nbsp;
-    <button class="btn btn-primary" @click="hrefToManual(3, 6)">Ручное связывание Yandex</button> &nbsp;
 
     <button class="btn btn-primary" @click="getLink(1, true)">Начать заново</button>
 

@@ -14,22 +14,51 @@ class Ozon
         self::normalizeData($mpId);
     }
 
-    public static function getProductProperty(int $mpId)
+    public static function getProductProperty(int $mpId): array
     {
         // получить параметры доступа к API
-        $apiAccs = self::getKeysByMpId($mpId);
+        $apiAccesss = self::getKeysByMpId($mpId);
 
         $property = [];
         // загрузить данные из всех аккаунтов
-        foreach ($apiAccs as $apiAcc) {
+        foreach ($apiAccesss as $apiAccess) {
             // получить спецификацию продуктов
             $property = array_merge(
                 $property,
-                Api::getProductProperty($apiAcc)
+                Api::getProductProperty($apiAccess)
             );
         }
 
-        return self::convertToArrayProductProperty($property, $mpId);
+        $property = self::convertToArrayProductProperty($property, $mpId);
+
+        $property = array_column($property, null, 'product_mp_id');
+
+        // получить массив id товаров
+        $productMpIds = array_column($property, 'product_mp_id');
+
+        // получить sku. Нужно для идентификации товара в отчетах комиссионера
+        $productSku = [];
+        foreach ($apiAccesss as $apiAccess) {
+            // получить спецификацию продуктов
+            $productSku = array_merge(
+                $productSku,
+                Api::getProductInfo($apiAccess, $productMpIds)
+            );
+        }
+
+        $productSku = array_column($productSku, 'sku', 'id');
+
+        // передать SKU в массив свойств товара
+        self::addSkuToProperty($property, $productSku);
+
+        return $property;
+    }
+
+    private static function addSkuToProperty(&$property, &$productSku)
+    {
+        foreach ($productSku as $productId => $sku) {
+            $property[$productId]['id_for_sold_reports'] = $sku;
+        }
     }
 
     private static function convertToArrayProductProperty($property, int $mpId)
@@ -63,7 +92,7 @@ class Ozon
             }
 
             $img = [];
-            foreach ($prop->images AS $image) {
+            foreach ($prop->images as $image) {
                 $img[] = $image->file_name;
             }
 
@@ -88,6 +117,7 @@ class Ozon
                 "color" => $color,
                 "json" => json_encode($prop),
                 "img" => $img,
+                "barcode" => $prop->barcode,
             ];
         }
 

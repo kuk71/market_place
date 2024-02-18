@@ -159,7 +159,9 @@ class ProductDownloaded extends \yii\db\ActiveRecord
                 PD.weight_gr,
                 PD.size_1_mm, 
                 PD.size_2_mm,
-                PD.size_3_mm
+                PD.size_3_mm,
+                PD.barcode,
+                PD.id_for_sold_reports
             FROM " . self::tableName() . " AS PD
             JOIN " . MP::tableName() . " AS MP
                 ON (PD.mp_id = MP.id)
@@ -219,6 +221,8 @@ class ProductDownloaded extends \yii\db\ActiveRecord
                 PD.size_1_mm,
                 PD.size_2_mm,
                 PD.size_3_mm,
+                PD.barcode,
+                PD.id_for_sold_reports,
                 case when NL.id IS NULL then false else true end AS \"noLink\"
             FROM " . self::tableName() . " AS PD
             LEFT JOIN  " . MpLinkNo::tableName(). " AS NL

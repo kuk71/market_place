@@ -77,7 +77,7 @@ const App = {
 
             let imgRender = ""
             for (let i = 0; i < imgs.length; i++) {
-                imgRender = imgRender + '<img src="' + imgs[i] + '" style="margin: 0 0 0 10px; height: 100px"> '
+                imgRender = imgRender + '<a target="_blank" href="' + imgs[i] + '"><img src="' + imgs[i] + '" style="margin: 0 0 0 10px; height: 100px"></a> '
             }
 
             return imgRender;

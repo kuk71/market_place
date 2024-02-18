@@ -12,6 +12,12 @@ use Yii;
  */
 class MP extends \yii\db\ActiveRecord
 {
+    public static function getMpIdByName(string $mpName)
+    {
+        return self::find()->where(['name' => $mpName])->scalar();
+    }
+
+
     /**
      * {@inheritdoc}
      */

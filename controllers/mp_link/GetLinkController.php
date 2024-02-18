@@ -32,6 +32,9 @@ class GetLinkController extends Controller
     public function actionIndex()
     {
         $request = Yii::$app->getRequest()->bodyParams;
+
+        // return $this->asJson($request);
+
         $userId = Yii::$app->user->id;
 
         $response['success'] = true;
@@ -44,6 +47,9 @@ class GetLinkController extends Controller
 
         $linkTypeId = (int)$request['linkType'];
         $linkNum = (int)$request['linkNum'];
+
+//        $linkTypeId = 3;
+//        $linkNum = 1;
 
         if (isset($request['delLink']) && $request['delLink'] === true) {
             // удалить ранее созданне соединения
@@ -66,7 +72,7 @@ class GetLinkController extends Controller
             MpLinkCandidates::addLinkSecond($userId, $linkTypeId, $queryPairNotLink);
         }
 
-        if ($linkNum === 1){
+        if ($linkNum === 1) {
             $linkNum = 0;
         }
 

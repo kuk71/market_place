@@ -1,6 +1,7 @@
 <?php
+// импортирует товары из основного аккаунта
 
-namespace app\controllers\ms;
+namespace app\controllers\ms\import;
 
 use app\controllers\Exeption;
 use app\models\db\MpMs;

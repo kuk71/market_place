@@ -12,7 +12,7 @@
             <thead>
             <tr>
                 <th scope="col" style="width: 135px"></th>
-                <th scope="col" style="width: 100px">id</th>
+                <th scope="col" style="width: 200px">id</th>
                 <th scope="col" style="width: 110px">Цвет</th>
                 <th scope="col" style="width: 200px">Код</th>
                 <th scope="col" style="width: 200px">Название</th>
@@ -37,7 +37,7 @@
             </tr>
 
             <tr>
-                <td>{{ productLink.id }} <br> {{ productLink.product_mp_id }}</td>
+                <td>{{ productLink.id }} <br> {{ productLink.product_mp_id }} <br> BC: {{ productLink.barcode }} <br> SKU: {{ productLink.id_for_sold_reports }}</td>
                 <td>{{ productLink.color }}</td>
                 <td>{{ productLink.vendor_code }}</td>
 
@@ -76,7 +76,7 @@
                     <button class="btn btn-primary" @click="pairLink(key, product.id)">Связать</button>
                 </td>
 
-                <td style="width: 100px">{{ product.id }} <br> {{ product.product_mp_id }}</td>
+                <td style="width: 100px">{{ product.id }} <br> {{ product.product_mp_id }}<br> BC: {{ product.barcode }}</td>
 
 
                 <td style="width: 110px">

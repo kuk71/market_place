@@ -106,10 +106,10 @@ class MpMs extends \yii\db\ActiveRecord
                 'Мой склад' AS mp_name,
                 PD.id,
                 4 AS mp_id,
-                '' AS product_mp_id,
+                PD.external_code AS product_mp_id,
                 PD.code AS vendor_code,
                 PD.name,
-                '' AS description,
+                PD.article AS description,
                 '' AS kit,
                 PD.color,
                 '' AS img,
@@ -117,7 +117,8 @@ class MpMs extends \yii\db\ActiveRecord
                 PD.size_1_mm,
                 PD.size_2_mm,
                 PD.size_3_mm,
-                LC.first_mp_product_id AS link_candidate
+                LC.first_mp_product_id AS link_candidate,
+                PD.barcode
             FROM " . self::tableName() . " AS PD
             LEFT JOIN " . MpLinkCandidates::tableName() . " AS LC
                 ON (PD.id = LC.first_mp_product_id AND LC.user_id = $userId AND LC.mp_link_type_id = $linkTypeId AND LC.is_del = 0)

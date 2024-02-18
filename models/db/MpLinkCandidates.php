@@ -20,7 +20,6 @@ class MpLinkCandidates extends \yii\db\ActiveRecord
 {
 
 
-
     public static function addLink(int $userId, int $typeLinkId, int $firstProductId, int $secondProductId)
     {
         $query = "
@@ -57,12 +56,31 @@ class MpLinkCandidates extends \yii\db\ActiveRecord
 
     public static function createLinkProductFirst(int $userId, int $linkTypeId)
     {
-        $products = self::getSimilarProductQuery();
+
+        if ($linkTypeId === 3) {
+            // соединение WB / Ya - соединяется через Ozon
+            $queryOzonWB = "SELECT first_mp_product_id, second_mp_product_id FROM mp_link_candidates WHERE user_id = :userId AND mp_link_type_id = 1 AND is_del = 0";
+            $queryOzonYa = "SELECT first_mp_product_id, second_mp_product_id FROM mp_link_candidates WHERE user_id = :userId AND mp_link_type_id = 2 AND is_del = 0";
+
+            $products = "
+                SELECT
+                   $userId, 
+                   :linkTypeId,
+                   W.second_mp_product_id,
+                   Y.second_mp_product_id
+                FROM ($queryOzonWB) AS W
+                JOIN ($queryOzonYa) AS Y
+                    ON (W.first_mp_product_id = Y.first_mp_product_id)";
+        } else {
+            $products = self::getSimilarProductQuery();
+        }
+
         $query = "INSERT INTO 
                     " . self::tableName() . " 
                         (user_id, mp_link_type_id, first_mp_product_id, second_mp_product_id) 
                         ($products)
                         ON CONFLICT (user_id, mp_link_type_id, first_mp_product_id, second_mp_product_id) DO NOTHING";
+
 
         $params = [
             ":userId" => $userId,
@@ -92,6 +110,27 @@ class MpLinkCandidates extends \yii\db\ActiveRecord
 
     public static function getSimilarProductQueryMs()
     {
+        return "
+            SELECT
+                L.user_id,
+                L.mp_link_type_id,
+                L.first_mp_product_id,
+                L.second_mp_product_id
+            FROM " . ProductSimilar::tableName() . " AS L
+                JOIN " . ProductDownloaded::tableName() . " AS F 
+                    ON (L.first_mp_product_id = F.id AND L.user_id = :userId AND L.mp_link_type_id = :linkTypeId)
+                JOIN " . MpMs::tableName() . " AS S
+                    ON (L.second_mp_product_id = S.id AND L.user_id = :userId AND L.mp_link_type_id = :linkTypeId)
+            WHERE 
+                S.barcode = F.barcode 
+                OR (S.barcode like ('%' || F.id_for_sold_reports || '%') AND F.id_for_sold_reports != '0') 
+                --OR (F.vendor_code = S.name OR F.vendor_code = S.code OR F.vendor_code = S.article)
+                --OR (F.name = S.name OR F.name = S.code OR F.name = S.article)
+                --OR L.number_equal_fields > 4
+            ORDER BY L.first_mp_product_id ASC";
+
+
+
         return "
             SELECT
                 L.user_id,
@@ -222,8 +261,10 @@ class MpLinkCandidates extends \yii\db\ActiveRecord
                 FM.size_3_mm AS \"firstSize3mm\",
                 FM.weight_gr AS \"firstWeightGr\",
                 FM.img AS \"firstImg\",
+                FM.barcode AS \"firstBarcode\",
+                FM.id_for_sold_reports,
                 SM.id AS \"secondId\",
-                '' AS \"secondMpProductId\",
+                SM.external_code AS \"secondMpProductId\",
                 SMP.id AS \"secondMpId\",
                 SMP.name AS \"secondMpName\",
                 SM.code AS \"secondVendorCode\",
@@ -235,7 +276,8 @@ class MpLinkCandidates extends \yii\db\ActiveRecord
                 SM.size_2_mm AS \"secondSize2mm\",
                 SM.size_3_mm AS \"secondSize3mm\",
                 SM.weight_gr AS \"secondWeightGr\",
-                '' AS \"secondImg\"
+                '' AS \"secondImg\",
+                SM.barcode AS \"secondBarcode\"
             FROM " . self::tableName() . " AS LC
                 JOIN " . ProductDownloaded::tableName() . " AS FM 
                     ON (LC.first_mp_product_id = FM.id AND LC.user_id = $userId AND LC.mp_link_type_id = $linkTypeId)
@@ -306,19 +348,128 @@ class MpLinkCandidates extends \yii\db\ActiveRecord
     {
         $linkNum = 2;
 
+//        SELECT
+//                L.user_id,
+//                L.mp_link_type_id,
+//                L.first_mp_product_id,
+//                L.second_mp_product_id
+//            FROM " . ProductSimilar::tableName() . " AS L
+//                JOIN " . ProductDownloaded::tableName() . " AS F
+//                    ON (L.first_mp_product_id = F.id AND L.user_id = :userId AND L.mp_link_type_id = :linkTypeId)
+//                JOIN " . MpMs::tableName() . " AS S
+//                    ON (L.second_mp_product_id = S.id AND L.user_id = :userId AND L.mp_link_type_id = :linkTypeId)
+//            WHERE
+//                F.json->>'barcode' = S.barcode
+//                OR (F.vendor_code = S.name OR F.vendor_code = S.code OR F.vendor_code = S.article)
+//                OR (F.name = S.name OR F.name = S.code OR F.name = S.article)
+//                OR L.number_equal_fields > 4
+//            ORDER BY L.first_mp_product_id ASC";
+
         $query = "
             SELECT DISTINCT
                     $linkTypeId,
                     $linkNum,
                     $userId,
-                    S.first_mp_product_id,
-                    S.second_mp_product_id
-                FROM " . ProductSimilar::tableName() . " AS S
-                
+                    L.first_mp_product_id,
+                    L.second_mp_product_id
+                FROM " . ProductSimilar::tableName() . " AS L
+                JOIN " . ProductDownloaded::tableName() . " AS F 
+                   ON (L.first_mp_product_id = F.id AND L.user_id = $userId AND L.mp_link_type_id = $linkTypeId)
+                JOIN " . MpMs::tableName() . " AS S
+                    ON (L.second_mp_product_id = S.id AND L.user_id = $userId AND L.mp_link_type_id = $linkTypeId)
                 WHERE 
-                    (S.first_mp_product_id, S.second_mp_product_id) IN ($queryPairNotLink)
-                    -- AND S.color = 1 
-                    AND S.number_equal_fields > 2
+                    (L.first_mp_product_id, L.second_mp_product_id) IN ($queryPairNotLink)
+                    AND (
+                        F.vendor_code ilike S.code
+                        OR F.vendor_code ilike S.name
+                        OR F.vendor_code ilike S.article
+                        OR F.name ilike S.code
+                        OR F.name ilike S.name
+                        OR F.name ilike S.article
+                        
+                        OR (
+                            F.vendor_code != ''
+                            AND (
+                                (
+                                    F.vendor_code ilike '%' || S.code || '%'
+                                    AND S.code != ''
+                                )
+                                
+                                OR (
+                                    F.vendor_code ilike '%' || S.name || '%'
+                                    AND S.name != ''
+                                )
+                                    
+                                OR (
+                                    F.vendor_code ilike '%' || S.article || '%'
+                                    AND S.article != ''
+                                )
+                            )
+                        )
+                        
+                        OR (
+                            F.name != ''
+                            AND (
+                                (
+                                    F.name ilike '%' || S.code || '%'
+                                    AND S.code != ''
+                                )
+                                
+                                OR (
+                                    F.name ilike '%' || S.name || '%'
+                                    AND S.name != ''
+                                )
+                                    
+                                OR (
+                                    F.name ilike '%' || S.article || '%'
+                                    AND S.article != ''
+                                )
+                            )
+                        )
+                        
+                        OR (
+                            S.code != ''
+                            AND (
+                                (
+                                    S.code ilike '%' || F.vendor_code || '%'
+                                    AND F.vendor_code != ''
+                                ) 
+                                OR (
+                                    S.code ilike '%' || F.name || '%'
+                                    AND F.name != ''
+                                ) 
+                            )
+                        )
+                        
+                        OR (
+                            S.name != ''
+                            AND (
+                                (
+                                    S.name ilike '%' || F.vendor_code || '%'
+                                    AND F.vendor_code != ''
+                                ) 
+                                OR (
+                                    S.name ilike '%' || F.name || '%'
+                                    AND F.name != ''
+                                ) 
+                            )
+                        )
+                        
+                        OR (
+                            S.code != ''
+                            AND (
+                                (
+                                    S.code ilike '%' || F.vendor_code || '%'
+                                    AND F.vendor_code != ''
+                                ) 
+                                OR (
+                                    S.code ilike '%' || F.name || '%'
+                                    AND F.name != ''
+                                ) 
+                            )
+                        )
+
+                    )
         ";
 
         $query = "
@@ -431,10 +582,12 @@ class MpLinkCandidates extends \yii\db\ActiveRecord
                 id
             FROM
                 " . MpMs::tableName() . "
-            WHERE
-                id NOT IN ($queryLinkSecondMp)
-                AND user_id = $userId
         ";
+
+
+//        -- WHERE
+//            --    id NOT IN ($queryLinkSecondMp)
+//    --    AND user_id = $userId
 
         return "
             SELECT

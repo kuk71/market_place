@@ -159,6 +159,8 @@ class Yandex
                 "dimension_height" => "см",
 
                 "json" => json_encode($prop),
+                "barcode" => "",
+                'id_for_sold_reports' => "",
             ];
         }
 

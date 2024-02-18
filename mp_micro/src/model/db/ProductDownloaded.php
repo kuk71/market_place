@@ -139,9 +139,9 @@ class ProductDownloaded
     private static function prepareProductList()
     {
         $query = "INSERT INTO " . self::TBL . "
-    (user_id, mp_id, product_mp_id, vendor_code, name, description, kit, color, img, height, dimension_height, length, dimension_length, width, dimension_width, weight, weight_unit, json)
+    (user_id, mp_id, product_mp_id, vendor_code, name, description, kit, color, img, height, dimension_height, length, dimension_length, width, dimension_width, weight, weight_unit, json, barcode, id_for_sold_reports)
     VALUES
-        (:user_id, :mp_id, :product_mp_id, :vendor_code, :name, :description, :kit, :color, :img, :height, :dimension_height, :length, :dimension_length, :width, :dimension_width, :weight, :weight_unit, :json)
+        (:user_id, :mp_id, :product_mp_id, :vendor_code, :name, :description, :kit, :color, :img, :height, :dimension_height, :length, :dimension_length, :width, :dimension_width, :weight, :weight_unit, :json, :barcode, :id_for_sold_reports)
         
         ON CONFLICT (user_id, mp_id, product_mp_id) DO NOTHING;";
 

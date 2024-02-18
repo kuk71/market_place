@@ -14,7 +14,7 @@ class MS
     {
         $query = "SELECT * FROM " . self::TBL . " WHERE user_id = $userId";
 
-        return $queryRes = App::db()->query($query)->fetchAll(PDO::FETCH_ASSOC);
+        return App::db()->query($query)->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public static function saveNormalize(array $normals)
