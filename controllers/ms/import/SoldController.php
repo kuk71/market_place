@@ -71,8 +71,14 @@ class SoldController extends Controller
 
                 $soldPosition->position_in_report = (int)$data[0];
 
+
+                $soldPosition->name = $data[1];
+                $soldPosition->article = $data[2];
+
+                $soldPosition->sku = $data[3] == "" ? 0 : $data[3];
                 $soldPosition->mp_product_barcode = $data[4] == "" ? "no barcode" : $data[4];
                 $soldPosition->count_sold = $countSold;
+
 
                 $price = str_replace(",", ".", $data[12]);
                 $price = (float)$price;
@@ -111,6 +117,10 @@ class SoldController extends Controller
 
                 $soldPosition->position_in_report = (int)$data[0];
 
+                $soldPosition->name = $data[1];
+                $soldPosition->article = $data[2];
+
+                $soldPosition->sku = $data[3] == "" ? 0 : $data[3];
                 $soldPosition->mp_product_barcode = $data[4] == "" ? "no barcode" : $data[4];
                 $soldPosition->count_sold = -$countSold;
 
