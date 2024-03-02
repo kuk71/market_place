@@ -3,7 +3,6 @@
 
 namespace app\controllers\ms\import;
 
-use app\controllers\Exeption;
 use app\models\db\MP;
 use app\models\db\MpSalesReportContents;
 use app\models\db\MpSalesReports;
@@ -79,22 +78,23 @@ class SoldController extends Controller
                 $soldPosition->mp_product_barcode = $data[4] == "" ? "no barcode" : $data[4];
                 $soldPosition->count_sold = $countSold;
 
+                // цена реализации в копейках
+                $price = (float)str_replace(",", ".", $data[8]);
+                $price = round($price * 100);
 
-                $price = str_replace(",", ".", $data[12]);
-                $price = (float)$price;
+                // баллы от Озона в копейках
+                $scores = (float)str_replace(",", ".", $data[6]);
+                $scores = round($scores * 100);
 
-                // вознаграждение комиссионера
-                $reward = str_replace(",", ".", $data[11]);
-                $reward = (float)$reward;
+                // $price += ($scores / $countSold);
 
-                $price = $price + $reward;
+                // вознаграждение комиссионера в копейках
+                $reward = (float)str_replace(",", ".", $data[11]);
+                $reward = round($reward * 100);
 
-                $reward = (int)($reward * 100);
-
-                $price = $price * 100 / $countSold;
-
-                $soldPosition->price_sold_kop = (int)($price);
+                $soldPosition->price_sold_kop = $price;
                 $soldPosition->reward_sold_kop = $reward;
+                $soldPosition->scores_kop = $scores;
 
                 $soldPosition->save();
 
@@ -124,12 +124,18 @@ class SoldController extends Controller
                 $soldPosition->mp_product_barcode = $data[4] == "" ? "no barcode" : $data[4];
                 $soldPosition->count_sold = -$countSold;
 
-                $price = str_replace(",", ".", $data[18]);
-                $price = (float)$price;
-                $price = $price * 100 / $countSold;
+                $price = (float)str_replace(",", ".", $data[16]);
+                $price = round($price * 100);
 
-                $soldPosition->price_sold_kop = (int)($price);
-                $soldPosition->reward_sold_kop = 0;
+                $scores = (float)str_replace(",", ".", $data[14]);
+                $scores = round($scores * 100);
+
+                $reward = (float)str_replace(",", ".", $data[17]);
+                $reward = round($reward * 100);
+
+                $soldPosition->price_sold_kop = $price;
+                $soldPosition->reward_sold_kop = $reward;
+                $soldPosition->scores_kop = $scores;
 
                 $soldPosition->save();
 

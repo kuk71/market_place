@@ -12,23 +12,62 @@ use Yii;
  * @property int $count_sold
  * @property int $price_sold_kop
  * @property string|null $timestamp_sent_to_accounting_system
- * @property int $mp_product_barcode
+ * @property string $mp_product_barcode
  * @property int $reward_sold_kop
  * @property int $position_in_report
+ * @property int|null $sku
+ * @property string|null $name
+ * @property string|null $article
+ * @property int|null $scores_kop
  */
 class MpSalesReportContents extends \yii\db\ActiveRecord
 {
-    // возвращает список товаров по которым были продажи с общим числом проданных позиций
-    public static function getProductSoldCount(int $salesReportId)
+
+
+
+
+    public static function getProductSold($salesReportId, $mpId, $userId)
     {
         $query = "
             SELECT
-                mp_product_barcode,
+                SRC.count_sold,
+                SRC.price_sold_kop,
+                SRC.reward_sold_kop,
+                MSP.ms_id_new
+                , SRC.position_in_report
+                , SRC.name
+            FROM mp_sales_report_contents AS SRC
+            LEFT JOIN product_downloaded AS PD
+                ON (SRC.article = PD.vendor_code AND PD.user_id = $userId AND PD.mp_id = $mpId)
+            LEFT JOIN " . MpLinkCandidates::tableName() . " AS LC
+                ON (LC.mp_link_type_id = 4 AND PD.id = LC.first_mp_product_id AND LC.is_del = 0)
+            LEFT JOIN " . MpMs::tableName() . " AS MS
+                ON (LC.second_mp_product_id = MS.id)
+            LEFT JOIN ms_products AS MSP
+                ON (MS.\"UUID\" = MSP.ms_id) 
+                
+            WHERE
+                SRC.sales_report_id = $salesReportId
+                --AND SRC.position_in_report >= 43
+                -- AND SRC.position_in_report <= 350
+                
+                -- AND position_in_report = 47
+                -- AND count_sold > 0
+            ORDER BY SRC.position_in_report
+        ";
+
+        return Yii::$app->db->createCommand($query)->queryAll();
+    }
+
+    public static function getProductSoldCount(int $salesReportId, int $mpId, int $userId)
+    {
+        $query = "
+            SELECT
                 MSP.ms_id_new,
-                sum(count_sold)
-            FROM " . self::tableName() . " AS SRC
-            LEFT JOIN " . ProductDownloaded::tableName() . " AS PD
-                ON (SRC.mp_product_barcode = PD.barcode)
+                sum(count_sold) AS total
+            FROM mp_sales_report_contents AS SRC
+            LEFT JOIN product_downloaded AS PD
+                ON (SRC.article = PD.vendor_code AND PD.user_id = $userId AND PD.mp_id = $mpId)
             LEFT JOIN " . MpLinkCandidates::tableName() . " AS LC
                 ON (LC.mp_link_type_id = 4 AND PD.id = LC.first_mp_product_id)
             LEFT JOIN " . MpMs::tableName() . " AS MS
@@ -39,7 +78,7 @@ class MpSalesReportContents extends \yii\db\ActiveRecord
             WHERE
                 SRC.sales_report_id = $salesReportId
                 AND count_sold > 0
-            GROUP BY mp_product_barcode, MSP.ms_id_new
+            GROUP BY MSP.ms_id_new
         ";
 
         return Yii::$app->db->createCommand($query)->queryAll();
@@ -59,10 +98,11 @@ class MpSalesReportContents extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['sales_report_id', 'count_sold', 'price_sold_kop', 'reward_sold_kop', 'mp_product_barcode', 'position_in_report'], 'required'],
-            [['sales_report_id', 'count_sold', 'price_sold_kop', 'mp_product_barcode'], 'default', 'value' => null],
-            [['sales_report_id', 'count_sold', 'price_sold_kop', 'reward_sold_kop', 'position_in_report'], 'integer'],
+            [['sales_report_id', 'count_sold', 'price_sold_kop', 'mp_product_barcode', 'reward_sold_kop', 'position_in_report', 'scores_kop'], 'required'],
+            [['sales_report_id', 'count_sold', 'price_sold_kop', 'reward_sold_kop', 'position_in_report', 'sku', 'scores_kop'], 'default', 'value' => null],
+            [['sales_report_id', 'count_sold', 'price_sold_kop', 'reward_sold_kop', 'position_in_report', 'sku', 'scores_kop'], 'integer'],
             [['timestamp_sent_to_accounting_system'], 'safe'],
+            [['mp_product_barcode', 'name', 'article'], 'string'],
         ];
     }
 
@@ -78,6 +118,11 @@ class MpSalesReportContents extends \yii\db\ActiveRecord
             'price_sold_kop' => 'Price Sold Kop',
             'timestamp_sent_to_accounting_system' => 'Timestamp Sent To Accounting System',
             'mp_product_barcode' => 'Mp Product Barcode',
+            'reward_sold_kop' => 'Reward Sold Kop',
+            'position_in_report' => 'Position In Report',
+            'sku' => 'Sku',
+            'name' => 'Name',
+            'article' => 'Article',
         ];
     }
 }

@@ -1,14 +1,10 @@
 <?php
-// импортирует данные отчетов о продажах из csv файла
+// отправляет отгрузку в Мой склад
 //
-namespace app\controllers\ms\api;
+namespace app\controllers\ms\export;
 
 use app\controllers\Exeption;
-use app\models\db\MP;
 use app\models\db\MpSalesReportContents;
-use app\models\db\MpSalesReports;
-use Exception;
-use Yii;
 use yii\filters\AccessControl;
 use yii\rest\Controller;
 
@@ -35,63 +31,84 @@ class DemandController extends Controller
 
     public function actionIndex()
     {
-        $salesReportId = 2;
+        $salesReportId = 1;
 
         $url = "https://api.moysklad.ru/api/remap/1.2/entity/demand";
         $method = "POST";
+        $name = "1 - Тестовая отгрузка";
         $organization = "1a40909c-c39b-11ee-0a80-0cc60021bf71"; // организация отправителя
         $agent = "f56c6951-cc81-11ee-0a80-070900035ee3"; // организация получателя
         $contract = "3545fb97-cc82-11ee-0a80-05530003d5c7"; // ссылка на контракт (договор комиссии)
         $store = "1a52aa73-c39b-11ee-0a80-0cc60021bf74"; // склад отправитель
+        $key = "7a742ee84de14f8ca96a403aa870ecea0f46dd47"; // токен Мой склад
 
         // получить список товаров для добавления в отгрузку
-        $positions = MpSalesReportContents::getProductSoldCount($salesReportId);
-        echo "<pre>"; print_r($positions); exit;
+        $positions = MpSalesReportContents::getProductSoldCount($salesReportId, 1, 2);
 
-        $positions = self::createPositionPart();
+        // echo "<pre>"; print_r($positions); exit;
 
+        $positionPart = self::createPositionPart($positions);
 
+        // echo "<pre>"; print_r($positionPart); exit;
+
+        self::sendDemandContent($positionPart, $name, $organization, $agent, $contract, $store, $key, $url, $method);
 
         return "Данные успешно импортированы";
     }
 
-    private static function createPositionPart()
+    private static function createPositionPart(array $positions): string
     {
+        $positionPart = [];
+        foreach ($positions AS $product) {
+            $positionPart[] = '
+            {
+                "quantity": ' . $product['total'] . ',
+                "vat": 0,
+                "assortment": {
+                    "meta": {
+                        "href": "https://api.moysklad.ru/api/remap/1.2/entity/product/' . $product['ms_id_new'] . '",
+                        "type": "product",
+                        "mediaType": "application/json"
+                    }
+                }
+            }';
+        }
 
+        return implode(",", $positionPart);
     }
 
-    private static function addSalesReportContent()
+    private static function sendDemandContent($positionPart, $name, $organization, $agent, $contract, $store, $key, $url, $method)
     {
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://api.moysklad.ru/api/remap/1.2/entity/demand',
+            CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
             CURLOPT_TIMEOUT => 0,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_CUSTOMREQUEST => $method,
             CURLOPT_POSTFIELDS => '{
-    "name": "Тестовая отгрузка",
+    "name": "' . $name . '",
     "organization": {
         "meta": {
-            "href": "https://api.moysklad.ru/api/remap/1.2/entity/organization/1a40909c-c39b-11ee-0a80-0cc60021bf71",
+            "href": "https://api.moysklad.ru/api/remap/1.2/entity/organization/' . $organization . '",
             "type": "organization",
             "mediaType": "application/json"
         }
     },
     "agent": {
         "meta": {
-            "href": "https://api.moysklad.ru/api/remap/1.2/entity/counterparty/f56c6951-cc81-11ee-0a80-070900035ee3",
+            "href": "https://api.moysklad.ru/api/remap/1.2/entity/counterparty/' . $agent . '",
             "type": "counterparty",
             "mediaType": "application/json"
         }
     },
     "contract": {
         "meta": {
-            "href": "https://api.moysklad.ru/api/remap/1.2/entity/contract/3545fb97-cc82-11ee-0a80-05530003d5c7",
+            "href": "https://api.moysklad.ru/api/remap/1.2/entity/contract/' . $contract . '",
             "metadataHref": "https://api.moysklad.ru/api/remap/1.2/entity/contract/metadata",
             "type": "contract",
             "mediaType": "application/json"
@@ -99,7 +116,7 @@ class DemandController extends Controller
     },
     "store": {
         "meta": {
-            "href": "https://api.moysklad.ru/api/remap/1.2/entity/store/1a52aa73-c39b-11ee-0a80-0cc60021bf74",
+            "href": "https://api.moysklad.ru/api/remap/1.2/entity/store/' . $store . '",
             "type": "store",
             "mediaType": "application/json"
         }
@@ -109,33 +126,10 @@ class DemandController extends Controller
     "applicable": true,
     "vatEnabled": true,
     "vatIncluded": true,
-    "positions": [
-        {
-            "quantity": 10,
-            "vat": 0,
-            "assortment": {
-                "meta": {
-                    "href": "https://api.moysklad.ru/api/remap/1.2/entity/product/ed109f72-cb0e-11ee-0a80-069c000fe8fd",
-                    "type": "product",
-                    "mediaType": "application/json"
-                }
-            }
-        },
-        {
-            "quantity": 20,
-            "vat": 0,
-            "assortment": {
-                "meta": {
-                    "href": "https://api.moysklad.ru/api/remap/1.2/entity/product/bdbb636c-cb0d-11ee-0a80-103000103560",
-                    "type": "product",
-                    "mediaType": "application/json"
-                }
-            }
-        }
-    ]
+    "positions": [' . $positionPart . ']
 }',
             CURLOPT_HTTPHEADER => array(
-                'Authorization: 7a742ee84de14f8ca96a403aa870ecea0f46dd47',
+                'Authorization: ' . $key,
                 'Accept-Encoding: gzip',
                 'Content-Type: application/json'
             ),
@@ -144,7 +138,7 @@ class DemandController extends Controller
         $response = curl_exec($curl);
 
         curl_close($curl);
-        echo $response;
+        echo "<pre>" . $response;
     }
 
 }
