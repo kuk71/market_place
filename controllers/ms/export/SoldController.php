@@ -32,32 +32,51 @@ class SoldController extends Controller
 
     public function actionIndex()
     {
-        $salesReportId = 1;
-        $mpId = 1;
+        $salesReportId = 16;
+        $mpId = 2;
         $userId = 2;
 
         $url = "https://api.moysklad.ru/api/remap/1.2/entity/commissionreportin";
         $method = "POST";
         $organization = "1a40909c-c39b-11ee-0a80-0cc60021bf71"; // организация отправителя
-        $agent = "f56c6951-cc81-11ee-0a80-070900035ee3"; // организация получателя
-        $contract = "3545fb97-cc82-11ee-0a80-05530003d5c7"; // ссылка на контракт (договор комиссии)
+        $agent = "607457a2-e110-11ee-0a80-0379000986a3"; // организация получателя
+        $contract = "74a26e48-e110-11ee-0a80-040b000904c3"; // ссылка на контракт (договор комиссии)
         $store = "1a52aa73-c39b-11ee-0a80-0cc60021bf74"; // склад отправитель
         $key = "7a742ee84de14f8ca96a403aa870ecea0f46dd47"; // токен Мой склад
 
-        // получить список товаров для добавления в отгрузку
+        // получить список товаров для добавления в отчет комиссионера
         $positions = MpSalesReportContents::getProductSold($salesReportId, $mpId, $userId);
 
         // echo "<pre>"; print_r($positions); exit;
 
         $period = MpSalesReports::find($salesReportId)->one();
 
+        // создать пустой отчет комиссионера
+        $reportCommissionId = self::createReportCommission($organization, $agent, $contract, $period->date_start, $period->date_end, $key, $url, $method);
+
+        // exit;
+
         // echo "<pre>"; print_r($period); exit;
 
         $positionPart = self::createPositionPart($positions);
 
-        // echo "<pre>"; print_r($positionPart); exit;
+        $sold = array_chunk($positionPart['sold'], 1000);
+        $returned = array_chunk($positionPart['returned'], 1000);
+        $url = $url . "/" . $reportCommissionId . "/";
 
-        self::sendSalesReportContent($positionPart, $organization, $agent, $contract, $period->date_start, $period->date_end, $key, $url, $method);
+        foreach($sold AS $position) {
+            $position = implode(",", $position);
+
+            self::sendSalesReportContent($position, $key, $url . "positions", $method);
+        }
+
+        foreach($returned AS $position) {
+            $position = implode(",", $position);
+
+            self::sendSalesReportContent($position, $key, $url . "returntocommissionerpositions", $method);
+        }
+
+        exit;
 
         return "Данные успешно импортированы";
     }
@@ -108,13 +127,14 @@ class SoldController extends Controller
 
 //        print_r($quantitySum); exit;
 
-        $sold = implode(",", $sold);
-        $returned = implode(",", $returned);
+        // $sold = implode(",", $sold);
+        // $returned = implode(",", $returned);
 
         return ['sold' => $sold, 'returned' => $returned];
     }
 
-    private static function sendSalesReportContent($positionPart, $organization, $agent, $contract, $periodStart, $periodEnd, $key, $url, $method)
+
+    private static function createReportCommission($organization, $agent, $contract, $periodStart, $periodEnd, $key, $url, $method)
     {
         $curl = curl_init();
 
@@ -154,8 +174,6 @@ class SoldController extends Controller
                         "mediaType": "application/json"
                     }
                 },
-                "positions": [' . $positionPart['sold'] . '],
-                "returnToCommissionerPositions": [' . $positionPart['returned'] . '],
                 "commissionPeriodStart": "' . $periodStart . ' 0:0:0",
                 "commissionPeriodEnd": "' . $periodEnd . ' 23:59:59"
             }',
@@ -169,7 +187,40 @@ class SoldController extends Controller
         $response = curl_exec($curl);
 
         curl_close($curl);
-        echo "<pre>" . $response;
+
+        $response = json_decode($response, true);
+
+        echo "<pre>" . $response['id'];
+
+        return $response['id'];
+    }
+
+
+    private static function sendSalesReportContent($position, $key, $url, $method)
+    {
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => $method,
+            CURLOPT_POSTFIELDS => '[' . $position . ']',
+            CURLOPT_HTTPHEADER => array(
+                'Authorization: ' . $key,
+                'Accept-Encoding: gzip',
+                'Content-Type: application/json'
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        // echo "<pre>" . $response;
     }
 
 }

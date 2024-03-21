@@ -11,7 +11,7 @@ class MoiSkladProduct
 
     public static function addNewUuid(string $uuidNew, int $productId)
     {
-        $query = "UPDATE " . self::TBL . " SET ms_id_new = :ms_id_new WHERE id = $productId";
+        $query = "UPDATE ms_products SET ms_id_new = :ms_id_new WHERE id = $productId";
 
         $prepare = App::db()->prepare($query);
         $prepare->execute(["ms_id_new" => $uuidNew]);
@@ -20,7 +20,7 @@ class MoiSkladProduct
     public static function getAll()
     {
         $query = "
-            SELECT * FROM " . self::TBL . " WHERE \"pathName\" like 'Толстой%' AND ms_id_new IS NULL 
+            SELECT * FROM ms_products WHERE \"pathName\" like 'Толстой%' AND ms_id_new IS NULL 
             UNION
             SELECT DISTINCT
                 MP.* 
@@ -33,8 +33,6 @@ class MoiSkladProduct
                 organization like '%Толстой%'
                 AND MP.\"pathName\" like '%Шев%'
                 AND ms_id_new IS NULL
-            
-            
             ORDER BY id ASC
         ";
 
@@ -44,7 +42,7 @@ class MoiSkladProduct
     public static function addProduct(array $product)
     {
         $query = "
-            INSERT INTO " . self::TBL . "
+            INSERT INTO ms_products
             (ms_id, name, code, article, brand, \"pathName\", code128, weight, length, width, height, user_id) VALUES
             (:ms_id, :name, :code, :article, :brand, :pathName, :code128, :weight, :length, :width, :height, :user_id)
         ";

@@ -80,6 +80,47 @@ class Wb
         return $productProperty;
     }
 
+    public static function getTrashProductProperty(string $apiKey)
+    {
+        $curl = curl_init();
+        $url = "https://suppliers-api.wildberries.ru/content/v2/get/cards/trash?locale=ru";
+        $method = "POST";
+        $key = $apiKey;
+
+        $limit = 1000;
+        $total = $limit;
+
+        $nmID = 0;
+        $updatedAt = "";
+
+        $productProperty = [];
+        while ($total === $limit) {
+            curl_setopt_array(
+                $curl,
+                self::getCurlAtrProductProperty($key, $url, $method, $limit, $nmID, $updatedAt)
+            );
+
+            $responseJson = curl_exec($curl);
+            $response = json_decode($responseJson);
+
+            $productProperty = array_merge(
+                $productProperty,
+                $response->cards
+            );
+
+            $total = $response->cursor->total;
+            $nmID = $response->cursor->nmID;
+
+            $updatedAt = "";
+
+            if (isset( $response->cursor->updatedAt)) {
+                $updatedAt = $response->cursor->updatedAt;
+            }
+        }
+
+        return $productProperty;
+    }
+
     private static function getCurlAtrProductProperty(
         string $key, string $url, string $method, int $limit, int $nmID, string $updatedAt)
     {

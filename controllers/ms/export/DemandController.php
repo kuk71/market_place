@@ -31,19 +31,19 @@ class DemandController extends Controller
 
     public function actionIndex()
     {
-        $salesReportId = 1;
+        $salesReportId = 16;
 
         $url = "https://api.moysklad.ru/api/remap/1.2/entity/demand";
         $method = "POST";
-        $name = "1 - Тестовая отгрузка";
+        $name = "2 - Тестовая отгрузка WB";
         $organization = "1a40909c-c39b-11ee-0a80-0cc60021bf71"; // организация отправителя
-        $agent = "f56c6951-cc81-11ee-0a80-070900035ee3"; // организация получателя
-        $contract = "3545fb97-cc82-11ee-0a80-05530003d5c7"; // ссылка на контракт (договор комиссии)
+        $agent = "607457a2-e110-11ee-0a80-0379000986a3"; // организация получателя
+        $contract = "74a26e48-e110-11ee-0a80-040b000904c3"; // ссылка на контракт (договор комиссии)
         $store = "1a52aa73-c39b-11ee-0a80-0cc60021bf74"; // склад отправитель
         $key = "7a742ee84de14f8ca96a403aa870ecea0f46dd47"; // токен Мой склад
 
         // получить список товаров для добавления в отгрузку
-        $positions = MpSalesReportContents::getProductSoldCount($salesReportId, 1, 2);
+        $positions = MpSalesReportContents::getProductSoldCount($salesReportId, 2, 2);
 
         // echo "<pre>"; print_r($positions); exit;
 

@@ -28,6 +28,7 @@ class MpSalesReportContents extends \yii\db\ActiveRecord
 
     public static function getProductSold($salesReportId, $mpId, $userId)
     {
+        // ozon
         $query = "
             SELECT
                 SRC.count_sold,
@@ -56,11 +57,45 @@ class MpSalesReportContents extends \yii\db\ActiveRecord
             ORDER BY SRC.position_in_report
         ";
 
+        // WB
+        $query = "
+            SELECT
+                SRC.count_sold,
+                SRC.price_sold_kop,
+                SRC.reward_sold_kop,
+                MSP.ms_id_new
+                , SRC.position_in_report
+                , SRC.name
+            FROM mp_sales_report_contents AS SRC
+
+            LEFT JOIN product_downloaded AS PD
+                ON (SRC.sku = PD.product_mp_id AND PD.user_id = $userId AND PD.mp_id = $mpId)
+            LEFT JOIN mp_link_candidates AS LCLO -- соединение с озоном
+                ON (PD.id = LCLO.second_mp_product_id AND LCLO.mp_link_type_id = 1 AND LCLO.is_del = 0)
+            LEFT JOIN mp_link_candidates AS LC
+                ON (LC.mp_link_type_id = 4 AND LC.is_del = 0 AND LCLO.first_mp_product_id = LC.first_mp_product_id)
+            LEFT JOIN " . MpMs::tableName() . " AS MS
+                ON (LC.second_mp_product_id = MS.id)
+            LEFT JOIN ms_products AS MSP
+                ON (MS.\"UUID\" = MSP.ms_id) 
+                
+            WHERE
+                SRC.sales_report_id = $salesReportId
+                --AND SRC.position_in_report >= 43
+                -- AND SRC.position_in_report <= 350
+                
+                -- AND position_in_report = 47
+                -- AND count_sold > 0
+                -- AND MSP.ms_id_new IS NULL
+            ORDER BY SRC.position_in_report
+        ";
+
         return Yii::$app->db->createCommand($query)->queryAll();
     }
 
     public static function getProductSoldCount(int $salesReportId, int $mpId, int $userId)
     {
+        // для ozon
         $query = "
             SELECT
                 MSP.ms_id_new,
@@ -69,7 +104,7 @@ class MpSalesReportContents extends \yii\db\ActiveRecord
             LEFT JOIN product_downloaded AS PD
                 ON (SRC.article = PD.vendor_code AND PD.user_id = $userId AND PD.mp_id = $mpId)
             LEFT JOIN " . MpLinkCandidates::tableName() . " AS LC
-                ON (LC.mp_link_type_id = 4 AND PD.id = LC.first_mp_product_id)
+                ON (LC.mp_link_type_id = 4 AND LC.is_del = 0 AND PD.id = LC.first_mp_product_id)
             LEFT JOIN " . MpMs::tableName() . " AS MS
                 ON (LC.second_mp_product_id = MS.id)
             LEFT JOIN ms_products AS MSP
@@ -80,6 +115,31 @@ class MpSalesReportContents extends \yii\db\ActiveRecord
                 AND count_sold > 0
             GROUP BY MSP.ms_id_new
         ";
+
+        // для WB
+        $query = "
+            SELECT  
+                MSP.ms_id_new
+                , sum(count_sold) AS total
+            -- , SRC.sku
+            FROM mp_sales_report_contents AS SRC
+			LEFT JOIN product_downloaded AS PD
+                ON (SRC.sku = PD.product_mp_id AND PD.user_id = $userId AND PD.mp_id = $mpId)
+			LEFT JOIN mp_link_candidates AS LCS
+                ON (LCS.mp_link_type_id = 1 AND LCS.is_del = 0 AND PD.id = LCS.second_mp_product_id)
+            LEFT JOIN mp_link_candidates AS LCF
+                ON (LCF.mp_link_type_id = 4  AND LCF.is_del = 0 AND LCS.first_mp_product_id = LCF.first_mp_product_id)
+            LEFT JOIN mp_ms AS MS
+                ON (LCF.second_mp_product_id = MS.id)
+           LEFT JOIN ms_products AS MSP
+                ON (MS.\"UUID\" = MSP.ms_id) 
+           WHERE 
+                SRC.sales_report_id = $salesReportId
+                AND SRC.count_sold > 0
+                -- AND MSP.ms_id_new IS NULL
+           GROUP BY MSP.ms_id_new";
+
+        // print_r($query); exit;
 
         return Yii::$app->db->createCommand($query)->queryAll();
     }

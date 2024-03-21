@@ -28,9 +28,17 @@ class Wb
         // загрузить данные из всех аккаунтов
         foreach ($apiAccs as $apiAcc) {
             // получить спецификацию продуктов
+
+            // всё кроме корзины
             $property = array_merge(
                 $property,
                 Api::getProductProperty($apiAcc['key'])
+            );
+
+            // корзина
+            $property = array_merge(
+                $property,
+                Api::getTrashProductProperty($apiAcc['key'])
             );
         }
 
@@ -99,7 +107,12 @@ class Wb
                 }
             }
 
-            $description = preg_replace('/\s+/', ' ', $pP->description);
+            $description = "";
+            if (isset($pP->description)) {
+                $description = preg_replace('/\s+/', ' ', $pP->description);
+            }
+
+
 
             $img = [];
             foreach ($pP->photos AS $image) {
@@ -108,12 +121,17 @@ class Wb
 
             $img = json_encode($img);
 
+            $title = "";
+            if (isset($pP->title)) {
+                $title = $pP->title;
+            }
+
             $productArr[] = [
                 "user_id" => App::getUserId(),
                 "mp_id" => $mpId,
                 "product_mp_id" => $pP->nmID,
                 "vendor_code" => $pP->vendorCode ?? null,
-                "name" => $pP->title,
+                "name" => $title,
                 "description" => $description,
                 "kit" => $set,
                 "color" => $color,

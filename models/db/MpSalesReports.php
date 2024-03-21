@@ -16,6 +16,13 @@ use Yii;
  */
 class MpSalesReports extends \yii\db\ActiveRecord
 {
+    /** @var $commissionWeight float Удельный к стоимости продажи вес комиссии */
+    public float $commissionWeight;
+    /**
+     * @var $commissionSumKop int общая сумма комиссии в отчете комиссионера
+     */
+    public int $commissionSumKop;
+
     /**
      * {@inheritdoc}
      */

@@ -10,6 +10,9 @@ class CreateProducts
     public static function createProducts()
     {
         $products = MoiSkladProduct::getAll();
+
+        print_r($products); exit;
+
         $i = 1;
         foreach ($products as $product) {
             $uuidNew = MS::createProduct("7a742ee84de14f8ca96a403aa870ecea0f46dd47", $product);

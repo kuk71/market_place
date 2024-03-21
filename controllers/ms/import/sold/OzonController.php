@@ -1,7 +1,7 @@
 <?php
-// импортирует данные отчетов о продажах из csv файла
+// импортирует отчет комиссионера Ozon из csv файла
 
-namespace app\controllers\ms\import;
+namespace app\controllers\ms\import\sold;
 
 use app\models\db\MP;
 use app\models\db\MpSalesReportContents;
@@ -12,9 +12,9 @@ use yii\filters\AccessControl;
 use yii\rest\Controller;
 
 
-class SoldController extends Controller
+class OzonController extends Controller
 {
-    private const CSV_PATH = "/../../../sold.csv";
+    private const CSV_PATH = "/../../../../sold_ozon.csv";
 
     /**
      * {@inheritdoc}
@@ -41,12 +41,14 @@ class SoldController extends Controller
         $file = __DIR__ . self::CSV_PATH;
         $f = fopen($file, 'r');
 
+        exit;
 
         try {
             // создать запись об отчете о продажах
-            $soldId = self::addSalesReport($f);
+            $soldParams = [];
+            self::addSalesReport($f, $soldParams);
 
-            self::addSalesReportContent($f, $soldId);
+            self::addSalesReportContent($f, $soldParams);
 
             fclose($f);
 
@@ -57,11 +59,14 @@ class SoldController extends Controller
         return "Данные успешно импортированы";
     }
 
-    private static function addSalesReportContent(&$f, int $soldId)
+    private static function addSalesReportContent(&$f, array $soldParams)
     {
+        $rewardSum = 0;
+        $soldId = $soldParams['id'];
+        $commissionWeight = $soldParams['commissionWeight'];
+
         while (($data = fgetcsv($f, NULL, ";")) !== FALSE) {
             $countSold = (int)$data[7];
-
 
             if ($countSold !== 0) {
                 $soldPosition = new MpSalesReportContents();
@@ -80,6 +85,9 @@ class SoldController extends Controller
 
                 // цена реализации в копейках
                 $price = (float)str_replace(",", ".", $data[8]);
+
+                $reward = round($price * $countSold * $commissionWeight * 100);
+
                 $price = round($price * 100);
 
                 // баллы от Озона в копейках
@@ -89,11 +97,13 @@ class SoldController extends Controller
                 // $price += ($scores / $countSold);
 
                 // вознаграждение комиссионера в копейках
-                $reward = (float)str_replace(",", ".", $data[11]);
-                $reward = round($reward * 100);
+//                $reward = (float)str_replace(",", ".", $data[11]);
+//                $reward = round($reward * 100);
 
                 $soldPosition->price_sold_kop = $price;
                 $soldPosition->reward_sold_kop = $reward;
+                $rewardSum += $reward;
+
                 $soldPosition->scores_kop = $scores;
 
                 $soldPosition->save();
@@ -130,8 +140,9 @@ class SoldController extends Controller
                 $scores = (float)str_replace(",", ".", $data[14]);
                 $scores = round($scores * 100);
 
-                $reward = (float)str_replace(",", ".", $data[17]);
-                $reward = round($reward * 100);
+//                $reward = (float)str_replace(",", ".", $data[17]);
+//                $reward = round($reward * 100);
+                $reward = 0;
 
                 $soldPosition->price_sold_kop = $price;
                 $soldPosition->reward_sold_kop = $reward;
@@ -144,9 +155,29 @@ class SoldController extends Controller
                 }
             }
         }
+
+        // сравнение комиссии в отчете и в импортированных данных
+        $deltaReward = $rewardSum - $soldParams['commissionSumKop'];
+
+        // echo "<pre>"; print_r($rewardSum); echo "<br>"; print_r($soldParams['commissionSumKop']); exit;
+
+        if ($deltaReward !== 0) {
+            $sold = MpSalesReportContents::findOne(['sales_report_id' => $soldId, ['>', 'count_sold', 0]]);
+                //->where(['sales_report_id' => $soldId])
+                //->Where(['>', 'count_sold', 0]);
+                //->one();
+
+            if ($sold !== false) {
+                $sold->reward_sold_kop -= $deltaReward;
+
+                // echo "<pre>"; print_r($sold); exit;
+
+                $sold->save();
+            }
+        }
     }
 
-    private static function addSalesReport(&$f): int
+    private static function addSalesReport(&$f, &$soldParams): void
     {
         $sold = new MpSalesReports();
 
@@ -158,7 +189,9 @@ class SoldController extends Controller
             throw new Exception("Ошибка создание записи об отчете о продажах." . print_r($sold->errors));
         }
 
-        return $sold->id;
+        $soldParams['id'] = $sold->id;
+        $soldParams['commissionWeight'] = $sold->commissionWeight;
+        $soldParams['commissionSumKop'] = $sold->commissionSumKop;
     }
 
     private static function getSoldParams(&$f, MpSalesReports $sold): void
@@ -192,6 +225,8 @@ class SoldController extends Controller
 
         $sold->date_start = $data[1];
         $sold->date_end = $data[2];
+        $sold->commissionWeight = ((float)$data[4]) / ((float)$data[3]);
+        $sold->commissionSumKop = (int)$data[4];
     }
 
 }
