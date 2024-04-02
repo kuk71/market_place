@@ -46,7 +46,9 @@ class WbController extends Controller
             $soldParams = [];
             self::addSalesReport($f, $soldParams);
 
+            // заполняет отчет содержимым
             self::addSalesReportContent($f, $soldParams);
+
 
             fclose($f);
 
@@ -57,6 +59,167 @@ class WbController extends Controller
         return "Данные успешно импортированы";
     }
 
+    // возвращает true если запись нужно импортрировать
+    private static function isImport(
+        &$data,
+        $soldParams,
+        &$isSold,
+        &$isReturned,
+        &$isDefective,
+        &$isSoldPartialCompensation,
+        &$isReturnedPartialCompensation
+    ): bool
+    {
+        if (self::isSold($data, $soldParams)) {
+            // запись относится к продаже
+            $isSold = true;
+            return true;
+        }
+
+        if (self::isReturned($data, $soldParams)) {
+            // запись относится в возврату
+            $isReturned = true;
+            return true;
+        }
+
+        if (self::isDefective($data, $soldParams)) {
+            // запись относится в возврату
+            $isDefective = true;
+            return true;
+        }
+
+        if (self::isSoldPartialCompensation($data, $soldParams)) {
+            // запись относится в возврату
+            $isSoldPartialCompensation = true;
+            return true;
+        }
+
+        if (self::isReturnedPartialCompensation($data, $soldParams)) {
+            // запись относится в возврату
+            $isReturnedPartialCompensation = true;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static function isSoldPartialCompensation(&$data, $soldParams): bool
+    {
+        if ($data[9] !== 'продажа') {
+            return false;
+        }
+
+        if (
+            $data[10] !== 'частичная компенсация брака'
+        ) {
+            return false;
+        }
+
+        if (!self::isDateValid($data, $soldParams)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static function isReturnedPartialCompensation(&$data, $soldParams): bool
+    {
+        if ($data[9] !== 'возврат') {
+            return false;
+        }
+
+        if (
+            $data[10] !== 'частичная компенсация брака'
+        ) {
+            return false;
+        }
+
+        if (!self::isDateValid($data, $soldParams)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static function isDefective(&$data, $soldParams): bool
+    {
+
+        if ($data[10] !== 'логистика') {
+            return false;
+        }
+
+        if ($data[37] !== 'возврат брака (к продавцу)') {
+            return false;
+        }
+
+        if (!self::isDateValid($data, $soldParams)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static function isReturned(&$data, $soldParams): bool
+    {
+        if ($data[9] !== 'возврат') {
+            return false;
+        }
+
+        if (
+            $data[10] !== 'возврат' &&
+            $data[10] !== 'авансовая оплата за товар без движения'
+        ) {
+            return false;
+        }
+
+        if (!self::isDateValid($data, $soldParams)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static function isSold(&$data, $soldParams): bool
+    {
+        if ($data[9] !== 'продажа') {
+            return false;
+        }
+
+        if (
+            $data[10] !== 'продажа'
+            && $data[10] !== 'корректная продажа'
+            && $data[10] !== 'авансовая оплата за товар без движения'
+            && $data[10] !== 'компенсация подмененного товара'
+        ) {
+            return false;
+        }
+
+        if (!self::isDateValid($data, $soldParams)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static function isDateValid(&$data, $soldParams): bool
+    {
+        $dateCheck = strtotime($data[12]);
+
+        if ($dateCheck === false) {
+            return false;
+        }
+
+        $dateStart = strtotime($soldParams['dateStart']);
+        $dateEnd = strtotime($soldParams['dateEnd']);
+
+        if ($dateCheck >= $dateStart && $dateCheck <= $dateEnd) {
+            return true;
+        }
+
+        return false;
+    }
+
+
     private static function addSalesReportContent(&$f, array $soldParams)
     {
         $rewardSum = 0;
@@ -65,61 +228,161 @@ class WbController extends Controller
 
         $positionInReport = 0;
 
+        $soldPartialCompensation = []; // массив с частичной оплатой продажи
+        $returnedPartialCompensation = []; // массив с частичной оплатой возврата
+
         while (($data = fgetcsv($f, NULL, ";")) !== FALSE) {
             $positionInReport++;
+
+            $data[9] = mb_strtolower(trim($data[9]));
+            $data[10] = mb_strtolower(trim($data[10]));
+            $data[37] = mb_strtolower(trim($data[37]));
+
+            $isSold = false; // запись относится к продаже
+            $isReturned = false; // запись относится к возврату
+            $isDefective = false; // запись относится к браку
+            $isSoldPartialCompensation = false; // частичная компенсация продажи
+            $isReturnedPartialCompensation = false; // частичная компенсация возвраты
+
+
+            if (!self::isImport(
+                $data,
+                $soldParams,
+                $isSold,
+                $isReturned,
+                $isDefective,
+                $isSoldPartialCompensation,
+                $isReturnedPartialCompensation
+            )) {
+                continue;
+            }
+
+
             $countSold = (int)$data[13];
 
-            // echo $data[9]; exit;
+            if ($isReturned) {
+                $countSold = -$countSold;
+            }
 
-            $operationType = mb_strtolower(trim($data[9]));
+            $soldPosition = new MpSalesReportContents();
 
-            if ($operationType === "возврат" || $operationType === "продажа") {
-                if (mb_strtolower(trim($data[9])) === "возврат") {
-                    $countSold = -$countSold;
-                }
-
-                $soldPosition = new MpSalesReportContents();
-
-                $soldPosition->sales_report_id = $soldId;
-
-                $soldPosition->position_in_report = $positionInReport;
+            $soldPosition->sales_report_id = $soldId;
+            $soldPosition->position_in_report = $positionInReport;
+            $soldPosition->name = $data[6];
+            $soldPosition->article = $data[5];
+            $soldPosition->sku = (int)$data[3];
+            $soldPosition->mp_product_barcode = (string)$data[8];
 
 
-                $soldPosition->name = $data[6];
-                $soldPosition->article = $data[5];
+            // цена реализации в копейках
+            $price = (float)str_replace(",", ".", $data[15]);
 
-                $soldPosition->sku = (int)$data[3];
-                $soldPosition->mp_product_barcode = (string)$data[8];
-                $soldPosition->count_sold = $countSold;
+            $price = round($price * 100);
 
-                // цена реализации в копейках
-                $price = (float)str_replace(",", ".", $data[19]);
+            // баллы в копейках
+            $scores = 0;
+            $reward = 0;
 
-                $price = round($price * 100);
+//            $reward = (float)str_replace(",", ".", $data[29]);
+//            $reward = round($reward * 100);
 
-                // баллы в копейках
+            if ($isDefective) {
+                // брак
+                $countSold = -51;
+                $price = 0;
+                $reward = 0;
                 $scores = 0;
+            }
 
-                $reward = (float)str_replace(",", ".", $data[29]);
-                $reward = round($reward * 100);
+            $soldPosition->count_sold = $countSold;
+            $soldPosition->price_sold_kop = $price;
+            $soldPosition->reward_sold_kop = $reward;
+            $rewardSum += $reward;
+            $soldPosition->scores_kop = $scores;
 
-                $soldPosition->price_sold_kop = $price;
-                $soldPosition->reward_sold_kop = $reward;
-                $rewardSum += $reward;
-
-                $soldPosition->scores_kop = $scores;
-
-                $soldPosition->save();
-
-                if (count($soldPosition->errors) !== 0) {
-                    throw new Exception("<pre>Ошибка при добавлении позиции " . print_r($data, true) . ". " . print_r($soldPosition->errors, true));
+            if ($isSoldPartialCompensation) {
+                // частичная компенсация по товару Продажа
+                if (!isset($soldPartialCompensation[$data[12]][$soldPosition->sku]['price'])) {
+                    $soldPartialCompensation[$data[12]][$soldPosition->sku]['price'] = 0;
                 }
+
+                $soldPartialCompensation[$data[12]][$soldPosition->sku]['price'] += $soldPosition->price_sold_kop;
+                $soldPartialCompensation[$data[12]][$soldPosition->sku]['name'] = $soldPosition->name;
+                $soldPartialCompensation[$data[12]][$soldPosition->sku]['article'] = $soldPosition->article;
+                $soldPartialCompensation[$data[12]][$soldPosition->sku]['mp_product_barcode'] = $soldPosition->mp_product_barcode;
+            }
+
+            if ($isReturnedPartialCompensation) {
+                // частичная компенсация по товару Возврат
+                if (!isset($returnedPartialCompensation[$data[12]][$soldPosition->sku]['price'])) {
+                    $returnedPartialCompensation[$data[12]][$soldPosition->sku]['price'] = 0;
+                }
+
+                $returnedPartialCompensation[$data[12]][$soldPosition->sku]['price'] += $soldPosition->price_sold_kop;
+                $returnedPartialCompensation[$data[12]][$soldPosition->sku]['name'] = $soldPosition->name;
+                $returnedPartialCompensation[$data[12]][$soldPosition->sku]['article'] = $soldPosition->article;
+                $returnedPartialCompensation[$data[12]][$soldPosition->sku]['mp_product_barcode'] = $soldPosition->mp_product_barcode;
+            }
+
+            if ($isSoldPartialCompensation || $isReturnedPartialCompensation) {
+                continue;
+            }
+
+            $soldPosition->save();
+
+            if (count($soldPosition->errors) !== 0) {
+                throw new Exception("<pre>Ошибка при добавлении позиции " . print_r($data, true) . ". " . print_r($soldPosition->errors, true));
             }
 
             if ($data[15] == "") {
                 continue;
             }
         }
+
+        // учет частичных продаж
+        foreach ($soldPartialCompensation AS $soldPartialCompensationDate) {
+            foreach ($soldPartialCompensationDate AS $sku => $features) {
+                $soldPosition = new MpSalesReportContents();
+
+                $soldPosition->sales_report_id = $soldId;
+                $soldPosition->position_in_report = 0;
+                $soldPosition->name = $features['name'];
+                $soldPosition->article = $features['article'];
+                $soldPosition->sku = $sku;
+                $soldPosition->mp_product_barcode = $features['mp_product_barcode'];
+
+                $soldPosition->count_sold = 1;
+                $soldPosition->price_sold_kop = $features['price'];
+                $soldPosition->reward_sold_kop = 0;
+                $soldPosition->scores_kop = 0;
+
+                $soldPosition->save();
+            }
+        }
+
+        // учет частичных возвратов
+        foreach ($returnedPartialCompensation AS $returnedPartialCompensationDate) {
+            foreach ($returnedPartialCompensationDate AS $sku => $features) {
+                $soldPosition = new MpSalesReportContents();
+
+                $soldPosition->sales_report_id = $soldId;
+                $soldPosition->position_in_report = 0;
+                $soldPosition->name = $features['name'];
+                $soldPosition->article = $features['article'];
+                $soldPosition->sku = $sku;
+                $soldPosition->mp_product_barcode = $features['mp_product_barcode'];
+
+                $soldPosition->count_sold = -1;
+                $soldPosition->price_sold_kop = $features['price'];
+                $soldPosition->reward_sold_kop = 0;
+                $soldPosition->scores_kop = 0;
+
+                $soldPosition->save();
+            }
+        }
+
+        // echo "<pre>"; print_r($soldPartialCompensation);
+
 
 //        // сравнение комиссии в отчете и в импортированных данных
 //        $deltaReward = $rewardSum - $soldParams['commissionSumKop'];
@@ -142,6 +405,7 @@ class WbController extends Controller
 //        }
     }
 
+
     private static function addSalesReport(&$f, &$soldParams): void
     {
         $sold = new MpSalesReports();
@@ -159,6 +423,8 @@ class WbController extends Controller
         }
 
         $soldParams['id'] = $sold->id;
+        $soldParams['dateStart'] = $sold->date_start;
+        $soldParams['dateEnd'] = $sold->date_end;
         $soldParams['commissionWeight'] = $sold->commissionWeight;
         $soldParams['commissionSumKop'] = $sold->commissionSumKop;
     }

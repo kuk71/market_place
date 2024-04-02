@@ -21,6 +21,8 @@ class MS
     private static function normalizeData() {
         $notNormalizeItems = dbMS::getAll(App::getUserId());
 
+        exit;
+
         // нормализация размеров
         $normal = self::normalizeSize($notNormalizeItems);
 

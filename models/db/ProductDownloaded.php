@@ -235,6 +235,8 @@ class ProductDownloaded extends \yii\db\ActiveRecord
                 AND PD.id NOT IN ($productLinkId)
        ";
 
+        // print_r($query); exit;
+
         return Yii::$app->db->createCommand($query)->queryAll();
     }
 

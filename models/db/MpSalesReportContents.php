@@ -81,12 +81,12 @@ class MpSalesReportContents extends \yii\db\ActiveRecord
                 
             WHERE
                 SRC.sales_report_id = $salesReportId
-                --AND SRC.position_in_report >= 43
+                -- AND SRC.position_in_report >= 43
                 -- AND SRC.position_in_report <= 350
                 
                 -- AND position_in_report = 47
                 -- AND count_sold > 0
-                -- AND MSP.ms_id_new IS NULL
+                AND MSP.ms_id_new IS NOT NULL
             ORDER BY SRC.position_in_report
         ";
 
@@ -136,8 +136,9 @@ class MpSalesReportContents extends \yii\db\ActiveRecord
            WHERE 
                 SRC.sales_report_id = $salesReportId
                 AND SRC.count_sold > 0
-                -- AND MSP.ms_id_new IS NULL
-           GROUP BY MSP.ms_id_new";
+                -- AND MSP.ms_id_new IS NOT NULL
+           GROUP BY MSP.ms_id_new
+           -- HAVING MSP.ms_id_new IS NULL";
 
         // print_r($query); exit;
 
@@ -158,7 +159,7 @@ class MpSalesReportContents extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['sales_report_id', 'count_sold', 'price_sold_kop', 'mp_product_barcode', 'reward_sold_kop', 'position_in_report', 'scores_kop'], 'required'],
+            [['sales_report_id', 'count_sold', 'price_sold_kop', 'reward_sold_kop', 'position_in_report', 'scores_kop'], 'required'],
             [['sales_report_id', 'count_sold', 'price_sold_kop', 'reward_sold_kop', 'position_in_report', 'sku', 'scores_kop'], 'default', 'value' => null],
             [['sales_report_id', 'count_sold', 'price_sold_kop', 'reward_sold_kop', 'position_in_report', 'sku', 'scores_kop'], 'integer'],
             [['timestamp_sent_to_accounting_system'], 'safe'],

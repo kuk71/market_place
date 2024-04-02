@@ -15,6 +15,7 @@ use Yii;
  * @property string $date_end
  */
 class MpSalesReports extends \yii\db\ActiveRecord
+
 {
     /** @var $commissionWeight float Удельный к стоимости продажи вес комиссии */
     public float $commissionWeight;

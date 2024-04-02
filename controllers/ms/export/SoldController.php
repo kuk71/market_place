@@ -32,7 +32,7 @@ class SoldController extends Controller
 
     public function actionIndex()
     {
-        $salesReportId = 16;
+        $salesReportId = 112;
         $mpId = 2;
         $userId = 2;
 
@@ -53,8 +53,6 @@ class SoldController extends Controller
 
         // создать пустой отчет комиссионера
         $reportCommissionId = self::createReportCommission($organization, $agent, $contract, $period->date_start, $period->date_end, $key, $url, $method);
-
-        // exit;
 
         // echo "<pre>"; print_r($period); exit;
 

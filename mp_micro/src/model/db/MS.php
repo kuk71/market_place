@@ -12,7 +12,7 @@ class MS
 
     public static function getAll(int $userId)
     {
-        $query = "SELECT * FROM " . self::TBL . " WHERE user_id = $userId";
+        $query = "SELECT * FROM mp_ms WHERE user_id = $userId";
 
         return App::db()->query($query)->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -20,7 +20,7 @@ class MS
     public static function saveNormalize(array $normals)
     {
         $query = "
-            UPDATE " .  self::TBL . "
+            UPDATE mp_ms
             SET
                 weight_gr = :weight_gr,
                 size_1_mm = :size_1_mm,

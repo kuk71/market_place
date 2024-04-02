@@ -31,7 +31,7 @@ class DemandController extends Controller
 
     public function actionIndex()
     {
-        $salesReportId = 16;
+        $salesReportId = 112;
 
         $url = "https://api.moysklad.ru/api/remap/1.2/entity/demand";
         $method = "POST";

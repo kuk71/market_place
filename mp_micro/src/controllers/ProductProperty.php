@@ -82,6 +82,7 @@ class ProductProperty
     {
         $marketName = MP::getNameById($mpId);
 
+        // mp_micro
         $marketClass = "market\\model\\productProperty\\$marketName";
 
         $marketPP = new $marketClass();
