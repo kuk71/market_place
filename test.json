@@ -1,0 +1,60 @@
+{
+  "shared": false,
+  "applicable": true,
+  "contract": {
+    "meta": {
+      "href": "https://api.moysklad.ru/api/remap/1.2/entity/contract/3545fb97-cc82-11ee-0a80-05530003d5c7",
+      "metadataHref": "https://api.moysklad.ru/api/remap/1.2/entity/contract/metadata",
+      "type": "contract",
+      "mediaType": "application/json"
+    }
+  },
+  "agent": {
+    "meta": {
+      "href": "https://api.moysklad.ru/api/remap/1.2/entity/counterparty/f56c6951-cc81-11ee-0a80-070900035ee3",
+      "metadataHref": "https://api.moysklad.ru/api/remap/1.2/entity/counterparty/metadata",
+      "type": "counterparty",
+      "mediaType": "application/json"
+    }
+  },
+  "organization": {
+    "meta": {
+      "href": "https://api.moysklad.ru/api/remap/1.2/entity/organization/1a40909c-c39b-11ee-0a80-0cc60021bf71",
+      "metadataHref": "https://api.moysklad.ru/api/remap/1.2/entity/organization/metadata",
+      "type": "organization",
+      "mediaType": "application/json"
+    }
+  },
+  "positions": [
+    {
+      "assortment": {
+        "meta": {
+          "href": "https://api.moysklad.ru/api/remap/1.2/entity/product/ed109f72-cb0e-11ee-0a80-069c000fe8fd",
+          "metadataHref": "https://api.moysklad.ru/api/remap/1.2/entity/product/metadata",
+          "type": "product",
+          "mediaType": "application/json"
+        }
+      },
+      "quantity": 2,
+      "price": 21132.05,
+      "vat": 10,
+      "reward": 123
+    },
+    {
+      "assortment": {
+        "meta": {
+          "href": "https://api.moysklad.ru/api/remap/1.2/entity/product/bdbb636c-cb0d-11ee-0a80-103000103560",
+          "metadataHref": "https://api.moysklad.ru/api/remap/1.2/entity/product/metadata",
+          "type": "product",
+          "mediaType": "application/json"
+        }
+      },
+      "quantity": 3,
+      "price": 2199.99,
+      "vat": 0,
+      "reward": 100
+    }
+  ],
+  "commissionPeriodStart": "2024-11-01 10:07:00",
+  "commissionPeriodEnd": "2024-11-29 10:07:00"
+}
